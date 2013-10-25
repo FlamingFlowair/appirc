@@ -34,7 +34,7 @@ void Channel::setTopic(string topic) {
 	this->topic = topic;
 }
 
-void Channel::addClient(Client* newclient) {
+unsigned int Channel::addClient(Client* newclient) {
 	if(!isclient(newclient)){
 		clientsChan.push_back(newclient);
 		if (compt == 0) {
@@ -42,7 +42,7 @@ void Channel::addClient(Client* newclient) {
 		}
 		++compt;
 	}
-	newclient->sendRep(0, "Vous êtes maintenant client du channel "+name+".");
+	return 0;
 }
 
 /*
@@ -59,40 +59,38 @@ unsigned int Channel::virerClient(Client* oldclient, Client* kicker) {
 				oldclient->sendData("Vous n'êtes plus dans le channel : "+name+" car "+kicker->getPseudo()+" (operateur du channel) vous a kické du channel");
 				--compt;
 				it=clientsChan.erase(it);
-				return compt;
+				return success;
 			}
 			else if (kicker != NULL && isop(kicker) == false) {
-				kicker->sendRep(eNotAutorized, "Vous n'êtes pas operateur du channel, kick impossible");
-				return compt;
+				return eNotAutorized;
 			}
 			else {
-				oldclient->sendRep(success, "Vous n'êtes plus dans le channel : "+name+".");
 				--compt;
 				it=clientsChan.erase(it);
-				return compt;
+				return success;
 			}
 		}
 		else {
 			++it;
 		}
 	}
-	return compt;
+	return error;
 }
 
 /*
  * Description : Ajoute un operateur au chan si il est déjà client au chan
  * @newop : pointeur sur le client a ajouter à la liste d'operateur
  */
-void Channel::addop(Client* oldop, Client* newop) {
+unsigned int Channel::addop(Client* oldop, Client* newop) {
 	if  (isop(oldop) == false) {
-		oldop->sendRep(eNotAutorized, "Hé mec t'est pas opérateur kes tu fé, t'as pas les droits");
-		return;
+		return eNotAutorized;
 	}
 	if (isclient(newop)) {
 		opChan.push_back(newop);
+		return success;
 	}
 	else {
-		oldop->sendRep(eNotExist, newop->getPseudo()+"doit être client du channel pour que cela fonctionne.");
+		return eNotExist;
 	}
 }
 
@@ -101,7 +99,7 @@ void Channel::addop(Client* oldop, Client* newop) {
  * @oldclient : pointeur sur le client a virer de la liste du channel
  * @kicker : pointeur sur l'operateur qui vire le client défaut : NULL
  */
-void Channel::virerop(Client* oldop, Client* kicker) {
+unsigned int Channel::virerop(Client* oldop, Client* kicker) {
 	list<Client*>::iterator it=opChan.begin();
 	list<Client*>::iterator fin=opChan.end();
 	while (it != fin) {
@@ -111,8 +109,7 @@ void Channel::virerop(Client* oldop, Client* kicker) {
 				it=opChan.erase(it);
 			}
 			else if (kicker != NULL && isop(kicker) == false) {
-				kicker->sendRep(eNotAutorized, "Vous n'êtes pas operateur du channel, kick d'operateur impossible");
-				return;
+				return eNotAutorized;
 			}
 			else {
 				send(oldop , oldop->getPseudo()+" n'est plus operateur du channel : "+name+" car il renonce à ses droits divins.");
@@ -123,6 +120,7 @@ void Channel::virerop(Client* oldop, Client* kicker) {
 			++it;
 		}
 	}
+	return error;
 }
 
 /*

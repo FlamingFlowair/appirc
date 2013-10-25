@@ -33,13 +33,13 @@ class Channel {
 		string getTopic() const;
 		void setTopic(string topic);
 		/// Ajouter un client à listecli_chan
-		void addClient(Client* newclient);
+		unsigned int addClient(Client* newclient);
 		/// Virer un client à la listecli_chan
 		unsigned int virerClient(Client* oldclient, Client* kicker=NULL);
 		/// Ajouter un client à listeop
-		void addop(Client* oldop, Client* newop);
+		unsigned int addop(Client* oldop, Client* newop);
 		/// Virer un client à la listeop
-		void virerop(Client* oldop, Client* kicker=NULL);
+		unsigned int virerop(Client* oldop, Client* kicker=NULL);
 		/// Vérifie si un client est utilisateur
 		bool isop(Client* clitotest);
 		/// Vérifie si un utilisateur est un client du channel

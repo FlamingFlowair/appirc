@@ -8,7 +8,8 @@ namespace ERR {
 			eMissingArg = 253,
 			eNotAutorized = 252,
 			eNickCollision = 251,
-			eBadArg = 250
+			eBadArg = 250,
+			eChannelnameCollision = 249
 		  };
 }
 

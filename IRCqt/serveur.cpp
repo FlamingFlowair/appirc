@@ -23,9 +23,9 @@
 using namespace ERR;
 using namespace std;
 
-enum {INCONNUE, CREATE_SOCKET, BIND_SOCKET, LISTEN_SOCKET};
-/**************************/
+enum {INCONNUE, CREATE_SOCKET, BIND_SOCKET, LISTEN_SOCKET, SELECT_SOCKET};
 
+/********** Design pattern singleton **********/
 Serveur* Serveur::_instance=NULL;
 
 Serveur* Serveur::getInstance(){
@@ -34,8 +34,21 @@ Serveur* Serveur::getInstance(){
 	}
 	return _instance;
 }
+/**********************************************/
 
-/**************************/
+
+/********** Constructeur et Destrcteur **********/
+void Serveur::init_sockaddrin(struct sockaddr_in* name, string hostname, uint16_t port) {
+	struct hostent* hostinfo;
+	name->sin_family=AF_INET;
+	name->sin_port=htons(port);
+	if ((hostinfo=gethostbyname(hostname.c_str())) == NULL) {
+		cout << "Host inconnu : *" << hostname << "*" << endl;
+		perror("GethostbynamE : ");
+		exit(1);
+	}
+	name->sin_addr=*(struct in_addr*)hostinfo->h_addr;
+}
 
 Serveur::Serveur(string hostname, unsigned int port, string nom, string messageacc) :hostname(hostname), port(port), nom(nom), messAcc(messageacc) {
 	struct sockaddr_in sa;
@@ -67,58 +80,41 @@ Serveur::~Serveur() {
 	}
 	close(fdSocket);
 }
+/************************************************/
 
-void Serveur::init_sockaddrin(struct sockaddr_in* name, string hostname, uint16_t port) {
-	struct hostent* hostinfo;
-	name->sin_family=AF_INET;
-	name->sin_port=htons(port);
-	if ((hostinfo=gethostbyname(hostname.c_str())) == NULL) {
-		cout << "Host inconnu : *" << hostname << "*" << endl;
-		perror("GethostbynamE : ");
-		exit(1);
-	}
-	name->sin_addr=*(struct in_addr*)hostinfo->h_addr;
-}
 
+/********** Getteurs et Setteurs **********/
 string Serveur::getHostname() const {
 	return hostname;
 }
-
 void Serveur::setHostname(string hostname) {
 	this->hostname = hostname;
 }
-
 string Serveur::getMessageacc() const {
 	return messAcc;
 }
-
 void Serveur::setMessageacc(string messageacc) {
 	this->messAcc = messageacc;
 }
-
 string Serveur::getNom() const {
 	return nom;
 }
-
 void Serveur::setNom(string nom) {
 	this->nom = nom;
 }
-
 unsigned int Serveur::getPort() const {
 	return port;
 }
-
 void Serveur::setPort(unsigned int port) {
 	this->port = port;
 }
-
 int Serveur::getSocketecoute() const {
 	return fdSocket;
 }
-
 void Serveur::setSocketecoute(int socketecoute) {
 	this->fdSocket = socketecoute;
 }
+/*******************************************/
 
 int Serveur::run()
 {
@@ -126,12 +122,13 @@ int Serveur::run()
 	fd_set tmp;
 	Ensemble ensemblesolide;
 	ensemblesolide.add(fdSocket);
+	ensemblesolide.add(STDIN_FILENO);
 	for(;;) {
 		// On créé un ensemble temporaire pour le donner au select
 		tmp=ensemblesolide.getfd_set();
 		if ((nbrclirestant=select(ensemblesolide.getmax(), &tmp, NULL, NULL, NULL)) == -1) {
 			perror("Erreur select");
-			return -1;
+			return SELECT_SOCKET;
 		}
 		// Cas d'un nouveau client
 		if (FD_ISSET(fdSocket, &tmp)) {
@@ -145,6 +142,13 @@ int Serveur::run()
 			Client* nouveauclient=new Client(fdtmp, voila.str());
 			clientsServ.push_back(nouveauclient);
 			nouveauclient->sendData(messAcc);
+		}
+		// cas ou on a quelquechose sur l'entrée standard
+		if (FD_ISSET(STDIN_FILENO, &tmp)) {
+			string entree;
+			cin >> entree;
+			if (entree == "quit")
+				return 0;
 		}
 		// creation des deux iterateurs de parcours
 		list<Client*>::iterator it=clientsServ.begin();
@@ -167,48 +171,52 @@ int Serveur::run()
 				++it;
 		}
 	}
-	return 0;
+	return error;
 }
 
-map<string, Channel*>::iterator Serveur::addchannel(Client* createur, string channelname, string topic) {
+unsigned int Serveur::addchannel(Client* createur, string channelname, string topic) {
 	pair<string, Channel*> mapaire(channelname, new Channel(channelname, topic, createur));
 	pair< map<string, Channel*>::iterator, bool> paire;
 	paire=nomToChannel.insert(mapaire);
 	if (paire.second == false) {
-		createur->sendRep(eBadArg, "Un channel possède déjà le nom : "+channelname+" nom, veuillez en choisir un autre");
+		return eChannelnameCollision;
 	}
 	else {
-		createur->sendRep(success, "Le channel à été créé avec succès.");
+		return success;
 	}
-	return paire.first;
+	return error;
 
 	/// Mieux mais c++ 2011
 	///	mapchannel.emplace(channelname, Channel(channelname, topic, createur));
 	///		createur->sendtoprgmclient("Il existe déjà un channel avec le nom : "+channelname);
 }
 
-void Serveur::join(Client* cli, string channelName) {
-	map<string, Channel*>:: iterator it;
+unsigned int Serveur::join(Client* cli, string channelName) {
+	map<string, Channel*>::iterator it;
 	it=nomToChannel.find(channelName);
 	if (it == nomToChannel.end()) {
-		it=addchannel(cli, channelName, "Topic vide");
+		return addchannel(cli, channelName, "Topic vide");
 	}
 	else {
-		nomToChannel[channelName]->addClient(cli);
+		return nomToChannel[channelName]->addClient(cli);
 	}
 }
 
-void Serveur::unjoin(Client* cli, string channelname) {
+unsigned int Serveur::unjoin(Client* cli, string channelname) {
+	unsigned retTmp;
 	map<string, Channel*>:: iterator it;
 	it=nomToChannel.find(channelname);
 	if (it == nomToChannel.end()) {
-		cli->sendRep(eBadArg, "Déconnexion impossible : le channel n'existe pas.");
+		return eBadArg;
 	}
 	else {
-		if (nomToChannel[channelname]->virerClient(cli) == 0) {
+		retTmp=nomToChannel[channelname]->virerClient(cli);
+		if (nomToChannel[channelname]->getCompt() == 0) {
 			nomToChannel.erase(it);
 		}
+		return retTmp;
 	}
+	return error;
 }
 
 // MP

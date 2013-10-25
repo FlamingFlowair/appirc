@@ -15,6 +15,8 @@ Client::Client(int socket, string pseudo) :fdSocket(socket)
 	adeconnecter=false;
 	cout << "Construction client " << pseudo << endl;
 }
+
+/// Le pseudo ne s'affiche pas, wtf ?
 Client::~Client()
 {
 	sendData("Vous avez été déconnecté du serveur");
@@ -135,21 +137,21 @@ void Client::sendData(string aenvoyer)
 
 /*************************************/
 
-
 void Client::agir()
 {
 	Serveur * srv=Serveur::getInstance();
 	/// ANALYSE DE CHAINE COMMANDE
-	///commande join
+	/// Commande join
 	switch (codeCmd) {
 		case 21:
-			srv->join(this,argsCmd);
+			switch (srv->join(this,argsCmd)) {
+				default:
+					sendRep(error, "Erreur inconnue");
+					break;
+			}
 			break;
 	}
 	adeconnecter=true;
-
 }
-
-
 
 /************************************/

@@ -2,5 +2,7 @@
 
 int main(int argc, char **argv) {
 	Serveur* Monserveur=Serveur::getInstance();
-	return Monserveur->run();
+	Monserveur->run();
+	delete Monserveur;
+	return 0;
 }

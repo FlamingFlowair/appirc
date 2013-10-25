@@ -54,11 +54,11 @@ class Serveur {
 
 		/// Methodes
 		/// Ajoute un channel
-		map<string, Channel*>::iterator addchannel(Client* createur, string channelname, string topic);
+		unsigned int addchannel(Client* createur, string channelname, string topic);
 		/// Ajoute une personne à la liste des clients d'un channel
-		void join (Client *cli, string channelname);
+		unsigned int join (Client *cli, string channelname);
 		/// Enleve une personne de la liste des clients d'un channel
-		void unjoin (Client *cli, string channelname);
+		unsigned int unjoin (Client *cli, string channelname);
 		/// Envoi un message à un client ou a un channel
 		void sendmsgbynom(Client* envoyeur, string pseudo, string message);
 		/// Gere le serveur
