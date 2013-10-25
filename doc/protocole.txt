@@ -1,0 +1,150 @@
+Protocole pour un babillard simplifié.
+Ajouts récents: 
+Gestion des erreurs
+
+
+Format général : TTIICAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA...
+TT: Taille de trame, sur 2 octets, en non signé
+II: identifiant de la commande, sur deux octets non signés. Il est
+incrémenté à chaque envoi par le client. En cas de débordement, il 
+repasse à 0. Le serveur répond à une commande avec le même identifiant.
+C: Code de la commande, sur 1 octet, ou code de retour
+A: Arguments (De taille T-5)
+Les arguments seront séparés par des '\n'
+Le dernier caractère d'une trame est un '\n'
+
+Gestion des erreurs:
+Pour simplifier la programmtion de la partie 'decodage', nous allons eviter d'utiliser des codes d'erreur déjà attribués à des commandes. Nous allons donc allouer les codes d'erreur en décroissant, depuis 255 (ERREUR AUTRE). J'ai renuméroté les codes d'erreur dans le fichier pour courrespondre à la nomenclature suivante:
+255 error Erreur autre
+254 enotexist L'argument (client, channel...) n'existe pas
+253 emissingarg Il manque un argument
+252 enotauthorised Pas les droits suffisants pour effectuer la commande
+251 enickcollision Un utilisateur existe deja avec ce nick
+250 ebadarg L'argument n'est pas conforme (mauvais nick, texte au lieu de chiffre..)
+0 esuccess La commande a fonctionné
+
+1) Du client vers le serveur
+Commandes: [code: sens]
+1: message d'un client à un client /msg
+args: le nick du client destinataire, le message
+ERR 254: le client désigné n'existe pas
+
+2: message d'un client à un channel 
+args: le nom du channel destinataire sans le '#', le message
+
+3: /who général
+args: le motif correspondant à l'utilisateur recherché (exemple lap*n)
+Réponse du serveur: une liste de nickname séparés par des "\n"
+
+4: /who sur un channel
+args: le nom du channel sur lequel on fait un who
+Réponse du serveur: une liste de nickname séparés par des "\n"
+
+5: /list des channels
+arg: le motif correspondant aux noms de channel recherchés (ex: *linux*)
+Cas particulier: si, lors de la commande /list, aucun arg n'est donné, 
+le client ajoute simplement une '*' comme argument
+Réponse du serveur: une liste de "channelName topic" séparés par des "\n"
+
+6: /topic pour changer le topic d'un channel
+arg: le nom du channel (sans #), le nouveau topic
+Cas particulier: si le nouveau topic est vide, le serveur renvoie le topic en cours.
+ERR 254: le channel n'existe pas
+
+7: /kick pour virer un utilisateur d'un channel
+arg: le channel sur lequel on kick, le nick du client à kicker
+Option: on peut aussi passer un motif pour kicker plein de gens à la
+fois :)
+ERR 254: le nick n'est pas sur le channel
+
+8: /ban : interdit à un client de joindre un channel
+arg: le channel d'où on est banni, le nick du client à bannir
+option: cette commande peut aussi supporter des motifs
+
+9: /op: rendre un utilisateur op
+arg: le channel sur pour lequel l'utilisateur va être op, le nick du 
+client à opper
+ERR 254: le nick n'est pas sur le channel
+
+20: /deop: enlever le op à un utilisateur
+args: les mêmes que /op
+ERR 254: le nick n'est pas sur le channel
+
+21: /join: joindre un channel
+arg: le channel à joindre
+ERR 252: l'utilisateur est banni du channel
+
+22: /nick : demander à changer de nick
+args: le nick proposé
+ERR 251: nick déja pris
+ERR 250: nick invalide
+
+23: /leave: quitter un channel
+Arg: le nom du channel quitté
+
+24: /unban: dé-bannir enlever un ban sur un channel
+arg: le nom du channel, le nom du/des utilisateurs à débannir (possibilité
+de motif)
+
+25: /banlist: lister les bans d'un channel
+arg: le channel qu'on interroge
+
+
+2) Entre le serveur et le client
+
+
+Réponse à une commande du client: 
+Code de retour (sur un octet): 0 si vrai, un code d'erreur propre à la 
+commande sinon. En cas de code de retour, on reprend l'identifiant de la 
+commande à laquelle on répond (Identifiant II).  Les codes de retour sont 
+compris entre 255 et 200, plus le 0 pour succes.
+
+Les messages du serveur vers le client qui ne sont pas des réponses à des 
+commandes du client ont des code commande >= 128
+
+Message envoyé par un autre client:
+128: envoi d'un message par un client à un channel.
+Args: le nom du channel, le client émetteur, le message
+
+129: envoi d'un message privé
+Arg: le nick du client emetteur, le message
+
+130: changement de droit
+Arg: le nick du client qui a changé les droits, le channel sur lequel les
+droits ont changé, les nouveaux droits
+Droits (pour le moment un seul, bcp plus sur un vrai irc):
+o=>op (si pas de o, alors on est pas op)
+
+131: changement de topic
+arg: le channel sur lequel le notic a changé, le nouveau topic
+
+132: changement de nick
+Arg: l'ancien et le nouveau nick du client
+
+133: un utilisateur a quitté le channel
+Arg: le nom du channel, le nick de l'utilisateur
+
+134: un utilisateur a été kické
+Arg: le nom du channel, le nick de l'utilisateur kické, le nick du kickeur
+
+135: un  ban a été ajouté/enlevé
+Arg: le nom du channel, + pour un ajout, - pour un retrait,la chaine
+qui correspond au ban (un nick ou un motif)
+
+136: rwall (message du serveur à tous les clients, du genre "déco imminente")
+Arg: le message 
+
+137: join (un nouveau client a rejoint le channel)
+Arg: le channel, le nick du client.
+
+
+Nous ne gèrerons pas de retour d'erreur à ces commandes. (je n'en vois 
+pas l'usage mais je vois des possibilités de déni de service du serveur 
+si un client a un comportement volontairement verbeux).
+
+
+
+
+
+
+

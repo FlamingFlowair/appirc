@@ -1,0 +1,68 @@
+#ifndef SERVEUR_H
+#define SERVEUR_H
+
+/// déclaration des uint32_t, uint16_t ...
+#include <stdint.h>
+
+#include <list>
+#include <map>
+#include <string>
+using namespace std;
+
+#include "channel.h"
+#include "client.h"
+
+class Serveur {
+	private:
+		/// Hostname
+		string hostname;
+		/// Port
+		unsigned int port;
+		/// Nom du serveur
+		string nom;
+		/// Message d'acceuil du serveur
+		string messAcc;
+		/// File descriptor du socket d'écoute
+		int fdSocket;
+		/// Map des channels
+		map<string, Channel*> nomToChannel;
+		/// Liste de client sur le serveur
+		list<Client*> clientsServ;
+
+		/// Constructeur privé : designe pattern singleton
+		Serveur(string hostname="localhost", unsigned int port=42007,  string nom="Anon", string messAcc="Salut bande de pouilleux");
+		/// init le sockaddr_in pour init le serveur
+		void init_sockaddrin(struct sockaddr_in *name, string hostname, uint16_t port);
+
+	public:
+		/// Adresse du serveur, instanciation et destruction
+		static Serveur* _instance ;
+		static Serveur* getInstance();
+		~Serveur();
+
+		/// Getteurs et Setteurs
+		string getHostname() const;
+		void setHostname(string hostname);
+		string getMessageacc() const;
+		void setMessageacc(string messAcc);
+		string getNom() const;
+		void setNom(string nom);
+		unsigned int getPort() const;
+		void setPort(unsigned int port);
+		int getSocketecoute() const;
+		void setSocketecoute(int fdSocket);
+
+		/// Methodes
+		/// Ajoute un channel
+		map<string, Channel*>::iterator addchannel(Client* createur, string channelname, string topic);
+		/// Ajoute une personne à la liste des clients d'un channel
+		void join (Client *cli, string channelname);
+		/// Enleve une personne de la liste des clients d'un channel
+		void unjoin (Client *cli, string channelname);
+		/// Envoi un message à un client ou a un channel
+		void sendmsgbynom(Client* envoyeur, string pseudo, string message);
+		/// Gere le serveur
+		int run();
+};
+
+#endif // SERVEUR_H

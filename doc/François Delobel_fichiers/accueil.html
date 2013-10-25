@@ -1,0 +1,109 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <title>Iut Ragots Commérages</title>
+</head>
+<body>
+<h1>Iut: Ragots &amp; Commérages (IRC)</h1>
+<h2>Présentation</h2>
+Le but de ce TP est d'écrire un client et un serveur pseudo-IRC
+en C++, en utilisant les sockets TCP et la librairie ncurses (et en
+prévoyant une amélioration avec QT). Bien
+entendu, vous n'allez pas implémenter un réel client IRC
+(la norme de communication est décrite dans le RFC (Request For
+comment) 1459 que vous pouvez trouver sur <a href="http://www.irchelp.org/irchelp/rfc/rfc.html"> www.irchelp.org</a>).
+Une fenêtre du client IRC peut se diviser en trois parties: la
+liste des messages reçus, une barre de status qui indique le
+nickname et le dernier channel joint, une ligne de commande sur
+laquelle on peut taper des messages, ou des commandes (toute commande
+commence par un /).
+Pour tester irc:
+<ul>
+  <li>Lancer le client irc en indiquant un surnom et un server: "irc
+nickname hina" </li>
+  <li>Attendre la barre de status (1 bonne minute)</li>
+  <li>Se connecter a un channel: "/join #iut"</li>
+  <li>Envoyer des messages que tous les gens sur ce channel verront:
+"message spirituel et drôle"</li>
+  <li>"/list" permet de lister les channels disponibles</li>
+  <li>"/quit" permet de se déconnecter</li>
+  <li>"/who *" permet d'avoir la liste des utilisateurs
+connectés sur le channel.</li>
+  <li>La première personne à rejoindre un channel le
+crée. Il a alors les droits d'opérateur sur le channel.
+Le channel est détruit quand plus personne n'y est
+connecté.</li>
+  <li>"/topic "bienvenue aux nouveau"" permet à
+l'opérateur du channel de changer le topic du channel,
+affiché à chaque connection.</li>
+  <li>On peut joindre plusieurs channels en même temps. Les
+messages sont envoyés au dernier channel joint.</li>
+</ul>
+<h2>Travail demandé</h2>
+Vous allez écrire un prototype du client et du serveur IRC
+implémentant uniquement les fonctionnalités essentielles.
+Vous êtes maître du protocole de communication entre le
+serveur et le client et n'avez pas à suivre les recommendations
+du RFC. Vous devrez écrire votre programme en C++, en utilisant
+les outils disponibles dans la norme ANSI (en particulier la <a href="file:///usr/local/doc/STL_doc/index.html">STL</a>).
+Les fonctions d'entrée/sortie de C++ ne suffiront pas à
+implémenter l'interface texte. <br>
+Vous utiliserez donc la librairie <a href="file:///usr/share/doc/libncurses5-dev/html/ncurses-intro.html">ncurses</a>
+ou une bibliothèque graphique (QT). ncurses est la librairie de
+référence pour les entrées/sorties pour terminal
+sous Unix. Elle est écrite en C et de nombreux programme en font
+un usage intensif (elle est très complète). Pensez
+à inclure ncurses.h et à linker avec la librairie
+ncurses. Pensez aussi à consulter le man des fonctions ncurses.
+<h2>Conception</h2>
+Avant de taper une seule ligne de code, ayez une idée
+précise des besoins du logiciel, un diagramme UML de vos classes
+et un schéma présentant le fonctionnement de vos
+programme (bientôt vous aurez des diagrammes de collaboration).
+Le succès de la programmation dépend de la qualité
+de l'analyse.
+<h2>A propos de ncurses</h2>
+Pour vous éviter de perdre trop de temps:
+<ul>
+  <li>Initialsez avec <em>initscr()</em></li>
+  <li><em>endwin()</em> restaure l'état du terminal en sortant</li>
+  <li>Le coin en haut est gauche est de coordonnées (0,0)</li>
+  <li>Le coin en bas à droite est de coordonnées
+(COLS-1,LINES-1)</li>
+  <li>int <em>move(int y, int x);</em> déplace le curseur</li>
+  <li>Les fonctions de type <em>printf</em> doivent être
+remplacées par des fonctions de type <em>printw</em></li>
+  <li> <em>int mvprintw(int y, int x, char *fmt [, arg] ...);</em>
+permet d'afficher à une position donnée</li>
+  <li>ncurses est multi-fenêtré (en mode texte). Si l'on
+ne précise rien, on travaille sur la fenêtre par
+défaut (stdscreen). Les fenêtre vous seront utiles, voire
+indispensables. Ecrire dans une fenêtre ne change pas directement
+l'écran (pour des raisons d'efficacité), il faut appeler <em>wrefresh()</em>.</li>
+  <li><em>WINDOW *newwin(int nlines, int ncols, int begin_y, int
+begin_x);</em> crée une fenètre (paramètres:
+dimension et position). </li>
+  <li> <em>int delwin(WINDOW *win);</em> libère une
+fenêtre.</li>
+  <li><em>int scroll(WINDOW *win);</em> et <em>int wscrl(WINDOW *win,
+int n);</em> permettent de scroller une fenêtre.</li>
+  <li>La fonction de scroll ne fonctionne que si le scroll a
+été autorisé sur la fenêtre: <em>scrollok(m,TRUE);</em></li>
+  <li>Les fonctions avec un '<em>w</em>' en début de nom
+s'addressent à une fenêtre en particulier (exemple <em>"wprintw(statusBar,"nickname
+channe")"</em> marche comme un <em>printw</em>)</li>
+  <li>Un <em>printw</em> scroll tout seul si le scroll
+estautorisé pour le fenètre.</li>
+  <li><em>getyx(WINDOW *win, int y, int x);</em> permet de
+récupérer la position du curseur dans une fenêtre.</li>
+</ul>
+Je vous donne aussi un <a href="http://hina/%7Edelobel/SI/Babillard/curses.cpp">programme</a> qui
+présente rapidement ce dont vous devriez avoir besoin en
+matière de curses. Je rajoute aussi un <a href="http://hina/%7Edelobel/SI/Babillard/NCURSES-Programming-HOWTO.html">programming howto</a>
+trouvé sur le net. Au travail!
+<br>
+<a href="http://hina/%7Edelobel/SI/Babillard/protocole.txt">Le protocole à utiliser</a>.
+
+
+</body></html>

@@ -1,0 +1,38 @@
+# Code de succès
+0 esuccess La commande a bien réussi
+# Du client vers le serveur
+1 privmsg message d'un client à un client /msg
+2 pubmsg  message d'un client à un channel 
+3 who général
+4 who sur un channel
+5 list des channels
+6 topic pour changer le topic d'un channel
+7 kick pour virer un utilisateur d'un channel
+8 ban  interdit à un client de joindre un channel
+9 op rendre un utilisateur op
+20 deop enlever le op à un utilisateur
+21 join joindre un channel
+22 nick  demander à changer de nick
+23 leave quitter un channel
+24 unban dé-bannir enlever un ban sur un channel
+25 banlist lister les bans d'un channel
+
+# Du serveur vers le client
+128 apubmsg envoi d'un message par un client à un channel.
+129 aprivmsg envoi d'un message privé
+130 aop changement de droit
+131 atopic changement de topic
+132 anick changement de nick
+133 aleave un utilisateur a quitté le channel
+134 akick un utilisateur a été kické
+135 aban un  ban a été ajouté/enlevé
+136 rwall (message du serveur à tous les clients, du genre "déco imminente")
+137 ajoin (un nouveau client a rejoint le channel)
+
+# Code d'erreur
+255 error Erreur autre
+254 eNotExist L'argument (client, channel...) n'existe pas
+253 eMissingArg Il manque un argument
+252 eNotAuthorised Pas les droits suffisants pour effectuer la commande
+251 eNickCollision Un utilisateur existe deja avec ce nick
+250 eBadArg L'argument n'est pas conforme (mauvais nick, texte au lieu de chiffre..)
