@@ -24,12 +24,12 @@
    <value type="bool" key="IndentFunctionBraces">false</value>
    <value type="bool" key="IndentNamespaceBody">true</value>
    <value type="bool" key="IndentNamespaceBraces">false</value>
-   <value type="int" key="IndentSize">3</value>
+   <value type="int" key="IndentSize">4</value>
    <value type="bool" key="IndentStatementsRelativeToSwitchLabels">true</value>
    <value type="bool" key="IndentSwitchLabels">true</value>
    <value type="int" key="PaddingMode">2</value>
    <value type="bool" key="SpacesForTabs">false</value>
-   <value type="int" key="TabSize">3</value>
+   <value type="int" key="TabSize">4</value>
   </valuemap>
  </data>
  <data>
