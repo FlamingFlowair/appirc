@@ -1,6 +1,7 @@
 #include "channel.h"
 #include "err.codes.h"
-
+#include <iostream>
+using namespace std;
 using namespace ERR;
 
 Channel::Channel(string name, string topic, Client* createur)
@@ -8,6 +9,7 @@ Channel::Channel(string name, string topic, Client* createur)
 {
 	compt=0;
 	addClient(createur);
+	cout << "Création channel : " << name << endl;
 }
 
 unsigned int Channel::getCompt() const {
@@ -42,7 +44,7 @@ unsigned int Channel::addClient(Client* newclient) {
 		}
 		++compt;
 	}
-	return 0;
+	return success;
 }
 
 /*

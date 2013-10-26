@@ -9,7 +9,8 @@ namespace ERR {
 			eNotAutorized = 252,
 			eNickCollision = 251,
 			eBadArg = 250,
-			eChannelnameCollision = 249
+			eChannelnameCollision = 249,
+			eTopicUnset = 248
 		  };
 }
 

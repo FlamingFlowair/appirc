@@ -192,10 +192,17 @@ unsigned int Serveur::addchannel(Client* createur, string channelname, string to
 }
 
 unsigned int Serveur::join(Client* cli, string channelName) {
+	unsigned int retTmp;
 	map<string, Channel*>::iterator it;
 	it=nomToChannel.find(channelName);
+	// Cas ou le channel n'existe pas
 	if (it == nomToChannel.end()) {
-		return addchannel(cli, channelName, "Topic vide");
+		switch(retTmp=addchannel(cli, channelName, "Topic vide")){
+			case success:
+				return eTopicUnset;
+			default:
+				return retTmp;
+		}
 	}
 	else {
 		return nomToChannel[channelName]->addClient(cli);

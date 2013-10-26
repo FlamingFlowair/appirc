@@ -27,7 +27,7 @@ Client::~Client()
 void Client::readCommande()
 {
 	uint16_t tailleTrame;
-	char buffer[4096];
+	char buffer[4096]={0}; // il semblerait que l'optimisation fasse en sorte d'utiliser le même buffer d'ou l'initialisation
 	int nblu;
 	nblu=read(fdSocket, &tailleTrame, sizeof(uint16_t));
 	if (nblu < 0) {
@@ -90,6 +90,7 @@ void Client::sendRep(uint8_t coderetour, string aenvoyer)
 		perror("Perror_sendMsg write client");
 	}
 }
+
 bool Client::isAdeconnecter() const {
 	return adeconnecter;
 }
@@ -145,13 +146,18 @@ void Client::agir()
 	switch (codeCmd) {
 		case 21:
 			switch (srv->join(this,argsCmd)) {
+				case success:
+					sendRep(success, "Vous êtes désormais dans le channel");
+					break;
+				case eTopicUnset:
+					sendRep(success, "Un channel a été créé, utilisez la commande topic pour définir le topic");
+					break;
 				default:
 					sendRep(error, "Erreur inconnue");
 					break;
 			}
 			break;
 	}
-	adeconnecter=true;
 }
 
 /************************************/

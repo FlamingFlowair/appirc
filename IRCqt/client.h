@@ -33,6 +33,11 @@ class Client {
 		void setFdclient(int fdSocket);
 		string getPseudo() const;
 		void setPseudo(string pseudo);
+		uint8_t getCodecmd() const;
+		void setCodecmd(uint8_t codeCmd);
+		uint16_t getIdcmd() const;
+		void setIdcmd(uint16_t idCmd);
+
 
 		/// Methodes
 		/// Methode appelée par le serveur à la sortie du select
@@ -42,10 +47,7 @@ class Client {
 		/// Envoi une chaine de caractère à un prgmclient
 		void sendRep (uint8_t coderetour, string aenvoyer);
 		void sendData (string aenvoyer);
-		uint8_t getCodecmd() const;
-		void setCodecmd(uint8_t codeCmd);
-		uint16_t getIdcmd() const;
-		void setIdcmd(uint16_t idCmd);
+
 };
 
 #endif // CLIENT_H
