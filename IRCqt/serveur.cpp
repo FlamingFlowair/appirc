@@ -19,6 +19,7 @@
 #include <sstream>
 // include des regex
 #include <regex>
+#include <iterator>
 
 #include "err.codes.h"
 #include "ensemble.h"
@@ -250,21 +251,24 @@ unsigned int Serveur::mp(Client* envoyeur, string pseudo, string message) {
 
 unsigned int Serveur::who(string* msgtosend, string pattern) const {
 	///normalisation de pattern, non obligatoire mais peut être cool
-//	string regpattern;
-//	string subtmp;
-//	while (pattern.length() != 0) {
-//		regpattern+="(";
-//		subtmp=pattern.substr(0, pattern.find("*"));
-//		regpattern+=subtmp;
-//		regpattern+=+")";
-//		pattern.erase(0, subtmp.length()+1);
-//	}
+	string regpattern;
+	size_t place;
+	while ( pattern.length() != 0) {
+		if ( (place=pattern.find("*")) != pattern.npos) {
+			regpattern+=pattern.substr(0, place)+".*";
+			pattern.erase(0, place+1);
+		}
+		else {
+			regpattern+=pattern;
+			pattern.erase(0);
+		}
+	}
 	list<Client*>::const_iterator it=clientsServ.begin();
 	list<Client*>::const_iterator fin=clientsServ.end();
-
 	for(; it!=fin; ++it) {
-		if(std::regex_match((*it)->getPseudo(), std::regex(pattern)))
-			*msgtosend+=(*it)->getPseudo()+"\n";
+		if (regex_match((*it)->getPseudo(), regex(regpattern))) {
+			*msgtosend=(*msgtosend)+((*it)->getPseudo())+"\n";
+		}
 	}
 	if (msgtosend->length() == 0) {
 		return eNotExist;
