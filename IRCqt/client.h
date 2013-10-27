@@ -49,6 +49,7 @@ class Client {
 		void sendRep (uint8_t coderetour, string aenvoyer);
 		void sendData (string aenvoyer);
 
+		vector<string> getArgsCmd() const;
 };
 
 #endif // CLIENT_H

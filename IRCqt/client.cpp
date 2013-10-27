@@ -98,6 +98,12 @@ void Client::sendRep(uint8_t coderetour, string aenvoyer)
 	}
 }
 
+
+vector<string> Client::getArgsCmd() const {
+	return argsCmd;
+}
+
+
 bool Client::isAdeconnecter() const {
 	return adeconnecter;
 }
