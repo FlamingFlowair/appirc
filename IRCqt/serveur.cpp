@@ -133,14 +133,19 @@ int Serveur::run()
 		// Cas d'un nouveau client
 		if (FD_ISSET(fdSocket, &tmp)) {
 			// on accepte le client
-			int fdtmp=accept(fdSocket, NULL, NULL);
+			int fdClient=accept(fdSocket, NULL, NULL);
 			// on ajoutele cli ent à la liste des client et à l'ensemble solide
-			ensemblesolide.add(fdtmp);
+			ensemblesolide.add(fdClient);
 			string pseudo="L33T_80Y";
 			stringstream voila;
 			voila <<pseudo<<ensemblesolide.getmax();
-			Client* nouveauclient=new Client(fdtmp, voila.str());
-			clientsServ.push_back(nouveauclient);
+			Client* nouveauclient=new Client(fdClient, voila.str());
+			list<Client*>::iterator it=clientsServ.begin();
+			list<Client*>::iterator fin=clientsServ.end();
+			while (it!= fin && (*it)->getFdclient() < nouveauclient->getFdclient()) {
+				++it;
+			}
+			clientsServ.insert(it, nouveauclient);
 			nouveauclient->sendData(messAcc);
 		}
 		// cas ou on a quelquechose sur l'entrée standard
