@@ -61,6 +61,8 @@ class Serveur {
 		unsigned int unjoin (Client *cli, string channelname);
 		/// Envoi un message à un client ou a un channel
 		unsigned int mp(Client* envoyeur, string pseudo, string message);
+		/// who ?
+		unsigned int who(string* msgtosend, string pattern="*") const;
 		/// Gere le serveur
 		int run();
 };

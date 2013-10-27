@@ -161,6 +161,23 @@ void Client::agir()
 					break;
 			}
 			break;
+		case 3: {
+			string reponse;
+			switch (srv->who(&reponse, argsCmd[0])) {
+				case success:
+					cout << reponse << endl;
+					sendRep(success, reponse);
+					break;
+				case eNotExist:
+					cout << reponse << endl;
+					sendRep(eNotExist, "Aucun client ne correspond a : "+argsCmd[0]);
+					break;
+				default:
+					sendRep(error, "Erreur inconnue");
+					break;
+			}
+			break;
+			}
 		case 21:
 			switch (srv->join(this,argsCmd[0])) {
 				case success:

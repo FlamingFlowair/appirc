@@ -15,10 +15,13 @@
 #include <stdlib.h>
 // include du cout
 #include <iostream>
+// include des stream string
+#include <sstream>
+// include des regex
+#include <regex>
 
 #include "err.codes.h"
 #include "ensemble.h"
-#include <sstream>
 
 using namespace ERR;
 using namespace std;
@@ -231,7 +234,7 @@ unsigned int Serveur::unjoin(Client* cli, string channelname) {
 // MP
 
 unsigned int Serveur::mp(Client* envoyeur, string pseudo, string message) {
-	list<Client*>::iterator it;
+	list<Client*>::iterator it=clientsServ.begin();
 	list<Client*>::iterator fin=clientsServ.end();
 	while(it != fin) {
 		if ((*it)->getPseudo() == pseudo) {
@@ -243,4 +246,28 @@ unsigned int Serveur::mp(Client* envoyeur, string pseudo, string message) {
 		}
 	}
 	return eNotExist;
+}
+
+unsigned int Serveur::who(string* msgtosend, string pattern) const {
+	///normalisation de pattern, non obligatoire mais peut être cool
+//	string regpattern;
+//	string subtmp;
+//	while (pattern.length() != 0) {
+//		regpattern+="(";
+//		subtmp=pattern.substr(0, pattern.find("*"));
+//		regpattern+=subtmp;
+//		regpattern+=+")";
+//		pattern.erase(0, subtmp.length()+1);
+//	}
+	list<Client*>::const_iterator it=clientsServ.begin();
+	list<Client*>::const_iterator fin=clientsServ.end();
+
+	for(; it!=fin; ++it) {
+		if(std::regex_match((*it)->getPseudo(), std::regex(pattern)))
+			*msgtosend+=(*it)->getPseudo()+"\n";
+	}
+	if (msgtosend->length() == 0) {
+		return eNotExist;
+	}
+	return success;
 }
