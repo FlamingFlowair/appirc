@@ -99,7 +99,7 @@ void Client::sendRep(uint8_t coderetour, string aenvoyer)
 }
 
 
-vector<string> Client::getArgsCmd() const {
+const vector<string>& Client::getArgsCmd() const {
 	return argsCmd;
 }
 
