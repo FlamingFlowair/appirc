@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <string>
+#include <vector>
 using namespace std;
 
 class Client {
@@ -15,7 +16,7 @@ class Client {
 		bool adeconnecter;
 		/// String chainedecommande, récupérée par le read du client
 		/// Utilisé par agir() qui l'analyse et agit en conséquence
-		string argsCmd; // Tous les messages recus sont des commandes : la normalisation est faite par le prgmclient
+		vector<string> argsCmd; // Tous les messages recus sont des commandes : la normalisation est faite par le prgmclient
 		uint16_t idCmd;
 		uint8_t codeCmd;
 	public:

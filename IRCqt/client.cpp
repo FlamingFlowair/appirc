@@ -27,6 +27,7 @@ Client::~Client()
 void Client::readCommande()
 {
 	uint16_t tailleTrame;
+	string argstmp;
 	char buffer[4096]={0}; // il semblerait que l'optimisation fasse en sorte d'utiliser le même buffer d'ou l'initialisation
 	int nblu;
 	nblu=read(fdSocket, &tailleTrame, sizeof(uint16_t));
@@ -53,8 +54,14 @@ void Client::readCommande()
 		return;
 	}
 	else {
-		argsCmd=buffer;
-		cout << "readcmd : " << argsCmd << endl;
+		argstmp=buffer;
+	}
+	vector<string>::iterator it=argsCmd.begin();
+	int i=0;
+	while (argstmp.length() != 0) {
+		argsCmd.insert(it, argstmp.substr(0, argstmp.find("\n")));
+		argstmp.erase(0, argsCmd[i].length()+1);
+		++it;
 	}
 }
 
@@ -96,12 +103,6 @@ bool Client::isAdeconnecter() const {
 }
 void Client::setAdeconnecter(bool adeconnecter) {
 	this->adeconnecter = adeconnecter;
-}
-string Client::getChainecommande() const {
-	return argsCmd;
-}
-void Client::setChainecommande(string chainecommande) {
-	this->argsCmd = chainecommande;
 }
 int Client::getFdclient() const {
 	return fdSocket;
@@ -145,7 +146,7 @@ void Client::agir()
 	/// Commande join
 	switch (codeCmd) {
 		case 21:
-			switch (srv->join(this,argsCmd)) {
+			switch (srv->join(this,argsCmd[0])) {
 				case success:
 					sendRep(success, "Vous êtes désormais dans le channel");
 					break;
