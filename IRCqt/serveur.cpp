@@ -180,7 +180,8 @@ int Serveur::run()
 }
 
 unsigned int Serveur::addchannel(Client* createur, string channelname, string topic) {
-	pair<string, Channel*> mapaire(channelname, new Channel(channelname, topic, createur));
+	Channel* tmp=new Channel(channelname, topic, createur);
+	pair<string, Channel*> mapaire(tmp->getName(), tmp);
 	pair< map<string, Channel*>::iterator, bool> paire;
 	paire=nomToChannel.insert(mapaire);
 	if (paire.second == false) {
@@ -190,10 +191,6 @@ unsigned int Serveur::addchannel(Client* createur, string channelname, string to
 		return success;
 	}
 	return error;
-
-	/// Mieux mais c++ 2011
-	///	mapchannel.emplace(channelname, Channel(channelname, topic, createur));
-	///		createur->sendtoprgmclient("Il existe déjà un channel avec le nom : "+channelname);
 }
 
 unsigned int Serveur::join(Client* cli, string channelName) {

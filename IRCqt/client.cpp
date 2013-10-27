@@ -103,7 +103,6 @@ const vector<string>& Client::getArgsCmd() const {
 	return argsCmd;
 }
 
-
 bool Client::isAdeconnecter() const {
 	return adeconnecter;
 }

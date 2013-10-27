@@ -20,7 +20,7 @@ void Channel::setCompt(unsigned int compt) {
 	this->compt = compt;
 }
 
-string Channel::getName() const {
+const string& Channel::getName() const {
 	return name;
 }
 

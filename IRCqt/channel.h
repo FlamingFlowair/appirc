@@ -28,7 +28,7 @@ class Channel {
 		/// Getteurs / Setteurs
 		unsigned int getCompt() const;
 		void setCompt(unsigned int compt);
-		string getName() const;
+		const string& getName() const;
 		void setName(string name);
 		string getTopic() const;
 		void setTopic(string topic);
