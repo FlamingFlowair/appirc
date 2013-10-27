@@ -84,19 +84,19 @@ Serveur::~Serveur() {
 
 
 /********** Getteurs et Setteurs **********/
-string Serveur::getHostname() const {
+const string& Serveur::getHostname() const {
 	return hostname;
 }
 void Serveur::setHostname(string hostname) {
 	this->hostname = hostname;
 }
-string Serveur::getMessageacc() const {
+const string& Serveur::getMessageacc() const {
 	return messAcc;
 }
 void Serveur::setMessageacc(string messageacc) {
 	this->messAcc = messageacc;
 }
-string Serveur::getNom() const {
+const string& Serveur::getNom() const {
 	return nom;
 }
 void Serveur::setNom(string nom) {

@@ -41,11 +41,11 @@ class Serveur {
 		~Serveur();
 
 		/// Getteurs et Setteurs
-		string getHostname() const;
+		const string& getHostname() const;
 		void setHostname(string hostname);
-		string getMessageacc() const;
+		const string& getMessageacc() const;
 		void setMessageacc(string messAcc);
-		string getNom() const;
+		const string & getNom() const;
 		void setNom(string nom);
 		unsigned int getPort() const;
 		void setPort(unsigned int port);

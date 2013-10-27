@@ -30,8 +30,10 @@ class Channel {
 		void setCompt(unsigned int compt);
 		const string& getName() const;
 		void setName(string name);
-		string getTopic() const;
+		const string& getTopic() const;
 		void setTopic(string topic);
+
+
 		/// Ajouter un client à listecli_chan
 		unsigned int addClient(Client* newclient);
 		/// Virer un client à la listecli_chan

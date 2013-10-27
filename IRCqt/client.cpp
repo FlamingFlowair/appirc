@@ -115,7 +115,7 @@ int Client::getFdclient() const {
 void Client::setFdclient(int fdclient) {
 	this->fdSocket = fdclient;
 }
-string Client::getPseudo() const {
+const string& Client::getPseudo() const {
 	return pseudo;
 }
 void Client::setPseudo(string pseudo) {

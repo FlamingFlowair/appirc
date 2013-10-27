@@ -28,11 +28,11 @@ class Client {
 
 		bool isAdeconnecter() const;
 		void setAdeconnecter(bool adeconnecter);
-		string getChainecommande() const;
+		const string& getChainecommande() const;
 		void setChainecommande(string chainecommande);
 		int getFdclient() const;
 		void setFdclient(int fdSocket);
-		string getPseudo() const;
+		const string& getPseudo() const;
 		void setPseudo(string pseudo);
 		uint8_t getCodecmd() const;
 		void setCodecmd(uint8_t codeCmd);

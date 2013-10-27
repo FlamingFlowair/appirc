@@ -28,7 +28,7 @@ void Channel::setName(string name) {
 	this->name = name;
 }
 
-string Channel::getTopic() const {
+const string & Channel::getTopic() const {
 	return topic;
 }
 
