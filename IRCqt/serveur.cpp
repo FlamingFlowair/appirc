@@ -230,16 +230,17 @@ unsigned int Serveur::unjoin(Client* cli, string channelname) {
 
 // MP
 
-void Serveur::sendmsgbynom(Client* envoyeur, string pseudo, string message) {
+unsigned int Serveur::mp(Client* envoyeur, string pseudo, string message) {
 	list<Client*>::iterator it;
 	list<Client*>::iterator fin=clientsServ.end();
 	while(it != fin) {
 		if ((*it)->getPseudo() == pseudo) {
-			(*it)->sendData("MP - "+envoyeur->getPseudo()+" : "+message);
-			return;
+			(*it)->sendData("MP - "+envoyeur->getPseudo()+" : "+message, 129);
+			return success;
 		}
 		else {
 			++it;
 		}
 	}
+	return eNotExist;
 }

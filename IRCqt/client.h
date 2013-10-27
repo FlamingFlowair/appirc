@@ -18,7 +18,7 @@ class Client {
 		/// Utilisé par agir() qui l'analyse et agit en conséquence
 		vector<string> argsCmd; // Tous les messages recus sont des commandes : la normalisation est faite par le prgmclient
 		uint16_t idCmd;
-		uint8_t codeCmd;
+		uint8_t codeCmd_ctos;
 	public:
 		/// Constructeur / Destructeur
 		Client(int socket, string pseudo);
@@ -35,7 +35,7 @@ class Client {
 		const string& getPseudo() const;
 		void setPseudo(string pseudo);
 		uint8_t getCodecmd() const;
-		void setCodecmd(uint8_t codeCmd);
+		void setCodecmd(uint8_t codeCmd_ctos);
 		uint16_t getIdcmd() const;
 		void setIdcmd(uint16_t idCmd);
 
@@ -47,7 +47,7 @@ class Client {
 		void agir();
 		/// Envoi une chaine de caractère à un prgmclient
 		void sendRep (uint8_t coderetour, string aenvoyer);
-		void sendData (string aenvoyer);
+		void sendData (string aenvoyer, uint8_t codeCmd_stoc=127);
 
 		const vector<string> & getArgsCmd () const;
 };

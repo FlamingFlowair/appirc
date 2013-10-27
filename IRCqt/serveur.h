@@ -60,7 +60,7 @@ class Serveur {
 		/// Enleve une personne de la liste des clients d'un channel
 		unsigned int unjoin (Client *cli, string channelname);
 		/// Envoi un message à un client ou a un channel
-		void sendmsgbynom(Client* envoyeur, string pseudo, string message);
+		unsigned int mp(Client* envoyeur, string pseudo, string message);
 		/// Gere le serveur
 		int run();
 };

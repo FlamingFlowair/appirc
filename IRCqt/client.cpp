@@ -42,7 +42,7 @@ void Client::readCommande()
 		adeconnecter=true;
 		return;
 	}
-	nblu=read(fdSocket, &codeCmd, sizeof(uint8_t));
+	nblu=read(fdSocket, &codeCmd_ctos, sizeof(uint8_t));
 	if (nblu < 0) {
 		perror("Erreur lecture code commande.");
 		adeconnecter=true;
@@ -66,11 +66,11 @@ void Client::readCommande()
 }
 
 uint8_t Client::getCodecmd() const {
-	return codeCmd;
+	return codeCmd_ctos;
 }
 
 void Client::setCodecmd(uint8_t codeCmd) {
-	this->codeCmd = codeCmd;
+	this->codeCmd_ctos = codeCmd;
 }
 
 uint16_t Client::getIdcmd() const {
@@ -122,9 +122,8 @@ void Client::setPseudo(string pseudo) {
 	this->pseudo = pseudo;
 }
 
-void Client::sendData(string aenvoyer)
+void Client::sendData(string aenvoyer, uint8_t codeCmd_stoc)
 {
-	uint8_t coderetour=127;
 	uint16_t tailleTrame=aenvoyer.size()+3;
 	if (write(fdSocket, &tailleTrame, sizeof(uint16_t)) == -1) {
 		perror("Perror_sendMsg write client");
@@ -132,7 +131,7 @@ void Client::sendData(string aenvoyer)
 	if (write(fdSocket, &idCmd, sizeof(uint16_t)) == -1) {
 		perror("Perror_sendMsg write idcmd");
 	}
-	if (write(fdSocket, &coderetour, sizeof(uint8_t)) == -1) {
+	if (write(fdSocket, &codeCmd_stoc, sizeof(uint8_t)) == -1) {
 		perror("Perror_sendMsg write client");
 	}
 	if (write(fdSocket, aenvoyer.c_str(), aenvoyer.size()) == -1) {
@@ -149,7 +148,19 @@ void Client::agir()
 	Serveur * srv=Serveur::getInstance();
 	/// ANALYSE DE CHAINE COMMANDE
 	/// Commande join
-	switch (codeCmd) {
+	switch (codeCmd_ctos) {
+		case 1:
+			switch (srv->mp(this, argsCmd[0], argsCmd[1])) {
+				case success:
+					sendRep(success, "");
+					break;
+				case eNotExist:
+					sendRep(eNotExist, argsCmd[0]+"n'est pas un client du serveur.");
+				default:
+					sendRep(error, "Erreur inconnue");
+					break;
+			}
+			break;
 		case 21:
 			switch (srv->join(this,argsCmd[0])) {
 				case success:
