@@ -145,7 +145,7 @@ void Client::sendData(string aenvoyer, uint8_t codeCmd_stoc)
 
 void Client::agir()
 {
-	Serveur * srv=Serveur::getInstance();
+	Serveur* srv=Serveur::getInstance();
 	/// ANALYSE DE CHAINE COMMANDE
 	/// Commande join
 	switch (codeCmd_ctos) {
@@ -165,11 +165,9 @@ void Client::agir()
 			string reponse;
 			switch (srv->who(&reponse, argsCmd[0])) {
 				case success:
-					cout << reponse << endl;
 					sendRep(success, reponse);
 					break;
 				case eNotExist:
-					cout << reponse << endl;
 					sendRep(eNotExist, "Aucun client ne correspond a : "+argsCmd[0]);
 					break;
 				default:
@@ -182,12 +180,40 @@ void Client::agir()
 			string reponse;
 			switch (srv->who(&reponse, argsCmd[0])) {
 				case success:
-					cout << reponse << endl;
 					sendRep(success, reponse);
 					break;
 				case eNotExist:
 					cout << reponse << endl;
 					sendRep(eNotExist, "Aucun client ne correspond a : "+argsCmd[0]);
+					break;
+				default:
+					sendRep(error, "Erreur inconnue");
+					break;
+			}
+			break;
+			}
+		case 5: {
+			string reponse;
+			switch (srv->listerChan(&reponse, argsCmd[0])) {
+				case success:
+					sendRep(success, reponse);
+					break;
+				case eNotExist:
+					sendRep(eNotExist, "Aucun channel ne correspond a : "+argsCmd[0]);
+					break;
+				default:
+					sendRep(error, "Erreur inconnue");
+					break;
+			}
+			break;
+			}
+		case 7: {
+			switch (srv->kickFromChan(argsCmd[0], argsCmd[1], this)) {
+				case success:
+					sendRep(success, "");
+					break;
+				case eNotExist:
+					sendRep(eNotExist, "Aucun channel avec ce nom ou aucun client de ce nom dans le channel");
 					break;
 				default:
 					sendRep(error, "Erreur inconnue");

@@ -1,8 +1,12 @@
 #include "channel.h"
 #include "err.codes.h"
+using namespace ERR;
+
 #include <iostream>
 using namespace std;
-using namespace ERR;
+// include des regex
+#include <regex>
+#include <iterator>
 
 Channel::Channel(string name, string topic, Client* createur)
 	:name(name), topic(topic)
@@ -52,31 +56,41 @@ unsigned int Channel::addClient(Client* newclient) {
  * @oldclient : pointeur sur le client a virer du channel
  * @kicker : pointeur sur l'operateur qui vire le client défaut : NULL
  */
-unsigned int Channel::virerClient(Client* oldclient, Client* kicker) {
+unsigned int Channel::virerClient(string patternOldClient, Client* kicker) {
+	unsigned int i=0;
+	if (kicker != NULL && isop(kicker) == false) {
+		return eNotAutorized;
+	}
 	list<Client*>::iterator it=clientsChan.begin();
 	list<Client*>::iterator fin=clientsChan.end();
 	while (it != fin) {
-		if ((*it)->getFdclient() == oldclient->getFdclient()) {
-			if (kicker != NULL && isop(kicker) == true) {
-				oldclient->sendData("Vous n'êtes plus dans le channel : "+name+" car "+kicker->getPseudo()+" (operateur du channel) vous a kické du channel");
-				--compt;
+		if (regex_match((*it)->getPseudo(), regex(patternOldClient))) {
+			if (kicker != NULL) {
+				(*it)->sendData("Vous n'êtes plus dans le channel : "+name+" car "+kicker->getPseudo()+" (operateur du channel) vous a kické du channel");
+				if (isop(*it)){
+					virerop(*it);
+				}
 				it=clientsChan.erase(it);
-				return success;
-			}
-			else if (kicker != NULL && isop(kicker) == false) {
-				return eNotAutorized;
+				--compt;
+				++i;
 			}
 			else {
-				--compt;
+				if (isop(*it)){
+					virerop(*it);
+				}
 				it=clientsChan.erase(it);
-				return success;
+				--compt;
+				++i;
 			}
 		}
 		else {
 			++it;
 		}
 	}
-	return error;
+	if (i == 0) {
+		return eNotExist;
+	}
+	return success;
 }
 
 /*

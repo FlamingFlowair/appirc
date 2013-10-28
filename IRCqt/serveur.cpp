@@ -1,17 +1,17 @@
 #include "serveur.h"
 
-/// perror
+// perror
 #include <stdio.h>
 #include <errno.h>
-/// close
+// close
 #include <unistd.h>
-/// socket select accept
+// socket select accept
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
 
 #include <netdb.h>
-/// exit
+// include du exit
 #include <stdlib.h>
 // include du cout
 #include <iostream>
@@ -215,16 +215,16 @@ unsigned int Serveur::join(Client* cli, string channelName) {
 	}
 }
 
-unsigned int Serveur::unjoin(Client* cli, string channelname) {
+unsigned int Serveur::unjoin(Client* cli, string channelName) {
 	unsigned retTmp;
 	map<string, Channel*>:: iterator it;
-	it=nomToChannel.find(channelname);
+	it=nomToChannel.find(channelName);
 	if (it == nomToChannel.end()) {
 		return eBadArg;
 	}
 	else {
-		retTmp=nomToChannel[channelname]->virerClient(cli);
-		if (nomToChannel[channelname]->getCompt() == 0) {
+		retTmp=nomToChannel[channelName]->virerClient(cli->getPseudo());
+		if (nomToChannel[channelName]->getCompt() == 0) {
 			nomToChannel.erase(it);
 		}
 		return retTmp;
@@ -250,9 +250,9 @@ unsigned int Serveur::mp(Client* envoyeur, string pseudo, string message) {
 }
 
 unsigned int Serveur::who(string* msgtosend, string pattern) const {
-	///normalisation de pattern, non obligatoire mais peut être cool
 	string regpattern;
 	size_t place;
+	// On remplace tous les * en .* pour correspondre aux regex C++
 	while ( pattern.length() != 0) {
 		if ( (place=pattern.find("*")) != pattern.npos) {
 			regpattern+=pattern.substr(0, place)+".*";
@@ -274,4 +274,54 @@ unsigned int Serveur::who(string* msgtosend, string pattern) const {
 		return eNotExist;
 	}
 	return success;
+}
+
+unsigned int Serveur::listerChan(string* msgtosend, string patternChannelName) const {
+	string regpattern;
+	size_t place;
+	// On remplace tous les * en .* pour correspondre aux regex C++
+	while ( patternChannelName.length() != 0) {
+		if ( (place=patternChannelName.find("*")) != patternChannelName.npos) {
+			regpattern+=patternChannelName.substr(0, place)+".*";
+			patternChannelName.erase(0, place+1);
+		}
+		else {
+			regpattern+=patternChannelName;
+			patternChannelName.erase(0);
+		}
+	}
+	map<string, Channel*>::const_iterator it=nomToChannel.begin();
+	map<string, Channel*>::const_iterator fin=nomToChannel.end();
+	for(; it!=fin; ++it) {
+		if (regex_match(it->first, regex(regpattern))) {
+			*msgtosend=(*msgtosend)+it->first+"\n"+(it->second->getTopic())+"\n";
+		}
+	}
+	if (msgtosend->length() == 0) {
+		return eNotExist;
+	}
+	return success;
+}
+
+unsigned int Serveur::kickFromChan(string channelName, string patternPseudo, Client* kicker) const {
+	string regpattern;
+	size_t place;
+	map<string, Channel*>:: iterator it;
+	it=nomToChannel.find(channelName);
+	// Cas ou le channel n'existe pas
+	if (it == nomToChannel.end()) {
+		return eNotExist;
+	}
+	// On remplace tous les * en .* pour correspondre aux regex C++
+	while ( patternPseudo.length() != 0) {
+		if ( (place=patternPseudo.find("*")) != patternPseudo.npos) {
+			regpattern+=patternPseudo.substr(0, place)+".*";
+			patternPseudo.erase(0, place+1);
+		}
+		else {
+			regpattern+=patternPseudo;
+			patternPseudo.erase(0);
+		}
+	}
+	return nomToChannel[channelName]->virerClient(regpattern, kicker);
 }
