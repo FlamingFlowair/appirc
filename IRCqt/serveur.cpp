@@ -223,7 +223,7 @@ unsigned int Serveur::unjoin(Client* cli, string channelName) {
 		return eBadArg;
 	}
 	else {
-		retTmp=nomToChannel[channelName]->virerClient(cli->getPseudo());
+        retTmp=nomToChannel[channelName]->virerClient(cli);
 		if (nomToChannel[channelName]->getCompt() == 0) {
 			nomToChannel.erase(it);
 		}

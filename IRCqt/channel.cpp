@@ -50,6 +50,33 @@ unsigned int Channel::addClient(Client* newclient) {
 	}
 	return success;
 }
+//premiere fonction virerClient()
+unsigned int Channel::virerClient(Client* oldclient, Client* kicker) {
+    list<Client*>::iterator it=clientsChan.begin();
+    list<Client*>::iterator fin=clientsChan.end();
+    while (it != fin) {
+        if ((*it)->getFdclient() == oldclient->getFdclient()) {
+            if (kicker != NULL && isop(kicker) == true) {
+                oldclient->sendData("Vous n'êtes plus dans le channel : "+name+" car "+kicker->getPseudo()+" (operateur du channel) vous a kické du channel");
+                --compt;
+                it=clientsChan.erase(it);
+                return success;
+            }
+            else if (kicker != NULL && isop(kicker) == false) {
+                return eNotAutorized;
+            }
+            else {
+                --compt;
+                it=clientsChan.erase(it);
+                return success;
+            }
+        }
+        else {
+            ++it;
+        }
+    }
+    return error;
+}
 
 /*
  * Description : supprime un client du chan

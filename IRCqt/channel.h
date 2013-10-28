@@ -38,6 +38,7 @@ class Channel {
 		unsigned int addClient(Client* newclient);
 		/// Virer un client à la listecli_chan
 		unsigned int virerClient(string patternOldClient, Client* kicker=NULL);
+        unsigned int virerClient(Client* oldclient, Client* kicker);
 		/// Ajouter un client à listeop
 		unsigned int addop(Client* oldop, Client* newop);
 		/// Virer un client à la listeop
