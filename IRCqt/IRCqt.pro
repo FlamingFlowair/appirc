@@ -7,7 +7,7 @@ SOURCES += main.cpp\
 	channel.cpp\
 	client.cpp\
 	ensemble.cpp \
-    	serveur.cpp
+	serveur.cpp
 	
 HEADERS += \
     client.h \
