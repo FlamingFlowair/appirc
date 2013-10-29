@@ -207,7 +207,7 @@ void Client::agir()
 			}
 			break;
 			}
-		case 7: {
+		case 7:
 			switch (srv->kickFromChan(argsCmd[0], argsCmd[1], this)) {
 				case success:
 					sendRep(success, "");
@@ -220,14 +220,42 @@ void Client::agir()
 					break;
 			}
 			break;
+		case 9:
+			switch (srv->op(argsCmd[0], argsCmd[1], this)) {
+				case success:
+					sendRep(success, "");
+					break;
+				case eNotExist:
+					sendRep(eNotExist, "Aucun channel avec ce nom ou aucun client de ce nom dans le channel");
+					break;
+				case eNotAutorized:
+					sendRep(eNotAutorized, "Vous n'avez pas les droits pour rendre op quelqu'un dans ce channel");
+					break;
+				default:
+					sendRep(error, "Erreur inconnue");
+					break;
 			}
+			break;
 		case 21:
-			switch (srv->join(this,argsCmd[0])) {
+			switch (srv->join(this, argsCmd[0])) {
 				case success:
 					sendRep(success, "Vous êtes désormais dans le channel");
 					break;
 				case eTopicUnset:
 					sendRep(success, "Un channel a été créé, utilisez la commande topic pour définir le topic");
+					break;
+				default:
+					sendRep(error, "Erreur inconnue");
+					break;
+			}
+			break;
+		case 23:
+			switch (srv->unjoin(this, argsCmd[0])) {
+				case success:
+					sendRep(success, "Vous avez quitté le channel"+argsCmd[0]);
+					break;
+				case eNotExist:
+					sendRep(eNotExist, "Le channel "+argsCmd[0]+" n'existe pas");
 					break;
 				default:
 					sendRep(error, "Erreur inconnue");

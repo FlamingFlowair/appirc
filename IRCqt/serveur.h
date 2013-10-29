@@ -67,6 +67,8 @@ class Serveur {
 		unsigned int listerChan(string *msgtosend, string patternChannelName="*") const;
 		///kick
 		unsigned int kickFromChan(string channelName, string patternPseudo, Client* kicker) const;
+		/// Rend operateur un client du channel
+		unsigned int op(string channelName, string Pseudo, Client* opper) const;
 		/// Gere le serveur
 		int run();
 };

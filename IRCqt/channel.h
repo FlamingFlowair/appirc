@@ -40,13 +40,14 @@ class Channel {
 		unsigned int virerClient(string patternOldClient, Client* kicker);
 		unsigned int virerClient(Client* oldclient);
 		/// Ajouter un client à listeop
-		unsigned int addop(Client* oldop, Client* newop);
+		unsigned int addop(Client* oldop, string newop);
 		/// Virer un client à la listeop
 		unsigned int virerop(Client* oldop, Client* kicker=NULL);
 		/// Vérifie si un client est utilisateur
 		bool isop(Client* clitotest);
 		/// Vérifie si un utilisateur est un client du channel
 		bool isclient(Client* clitotest);
+		Client * isclient(string pseudo);
 
 		/// Methodes
 		/// Enverras le message à tous les utilisateurs du channel

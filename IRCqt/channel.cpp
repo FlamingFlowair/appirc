@@ -114,12 +114,13 @@ unsigned int Channel::virerClient(string patternOldClient, Client* kicker) {
  * Description : Ajoute un operateur au chan si il est déjà client au chan
  * @newop : pointeur sur le client a ajouter à la liste d'operateur
  */
-unsigned int Channel::addop(Client* oldop, Client* newop) {
+unsigned int Channel::addop(Client* oldop, string newop) {
+	Client* newopptr;
 	if  (isop(oldop) == false) {
 		return eNotAutorized;
 	}
 	if (isclient(newop)) {
-		opChan.push_back(newop);
+		opChan.push_back(newopptr);
 		return success;
 	}
 	else {
@@ -190,6 +191,24 @@ bool Channel::isclient(Client* clitotest) {
 		}
 	}
 	return false;
+}
+
+/*
+ * Description : return true si un client est dans la liste des clients du channel
+ * @clitotest : string : pseudo du client à tester
+ */
+Client* Channel::isclient(string pseudo) {
+	list<Client*>::iterator it=clientsChan.begin();
+	list<Client*>::iterator fin=clientsChan.end();
+	while (it != fin) {
+		if ((*it)->getPseudo() == pseudo) {
+			return (*it);
+		}
+		else {
+			++it;
+		}
+	}
+	return NULL;
 }
 
 /*
