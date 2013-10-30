@@ -326,8 +326,7 @@ unsigned int Serveur::kickFromChan(string channelName, string patternPseudo, Cli
 	return nomToChannel[channelName]->virerClient(regpattern, kicker);
 }
 
-unsigned int Serveur::op(string channelName, string pseudo, Client* opper)  {
-	string regpattern;
+unsigned int Serveur::op(string channelName, string pseudo, Client* opper) {
 	map<string, Channel*>:: iterator it;
 	it=nomToChannel.find(channelName);
 	// Cas ou le channel n'existe pas
