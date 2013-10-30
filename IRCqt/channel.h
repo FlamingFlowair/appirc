@@ -48,8 +48,8 @@ class Channel {
 		/// Vérifie si un utilisateur est un client du channel
 		bool isclient(Client* clitotest);
 		Client * isclient(string pseudo);
-
-		/// Methodes
+		/// appelée pour commande who sur channel
+		unsigned int who(string* msgtosend, string pattern)const;
 		/// Enverras le message à tous les utilisateurs du channel
 		void send(Client* envoyeur, string message);
 

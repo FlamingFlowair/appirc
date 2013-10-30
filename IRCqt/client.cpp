@@ -188,19 +188,19 @@ void Client::agir()
 			}
 			break;
 			}
-		case 4: {/*
+		case 4: {
 					string reponse;
 					switch (srv->whoChannel(&reponse, argsCmd[0])) {
 						case success:
 							sendRep(success, reponse);
 							break;
 						case eNotExist:
-							sendRep(eNotExist, "Aucun client ne correspond a : "+argsCmd[0]);
+							sendRep(eNotExist, "Aucun channel ne correspond a : "+argsCmd[0]);
 							break;
 						default:
 							sendRep(error, "Erreur inconnue");
 							break;
-					}*/
+					}
 					break;
 				}
 		case 5: {

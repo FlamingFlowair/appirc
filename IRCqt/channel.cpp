@@ -223,3 +223,33 @@ void Channel::send(Client* envoyeur, string message) {
 		++it;
 	}
 }
+
+unsigned int Channel::who(string* msgtosend, string pattern) const {
+	string regpattern;
+	size_t place;
+	// On remplace tous les * en .* pour correspondre aux regex C++
+	while ( pattern.length() != 0) {
+		if ( (place=pattern.find("*")) != pattern.npos) {
+			regpattern+=pattern.substr(0, place)+".*";
+			pattern.erase(0, place+1);
+		}
+		else {
+			regpattern+=pattern;
+			pattern.erase(0);
+		}
+	}
+	//Cette ligne ajoute simplement le nom du channel avant la liste des nicks
+	//histoire de s'y retrouver.
+	*msgtosend=(*msgtosend)+name+" : \n";
+	list<Client*>::const_iterator it=clientsChan.begin();
+	list<Client*>::const_iterator fin=clientsChan.end();
+	for(; it!=fin; ++it) {
+		if (regex_match((*it)->getPseudo(), regex(regpattern))) {
+			*msgtosend=(*msgtosend)+((*it)->getPseudo())+"\n";
+		}
+	}
+	if (msgtosend->length() == 0) {
+		return eNotExist;
+	}
+	return success;
+}

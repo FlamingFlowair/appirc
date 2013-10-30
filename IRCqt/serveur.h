@@ -70,10 +70,10 @@ class Serveur {
 		unsigned int kickFromChan(string channelName, string patternPseudo, Client* kicker) ;
 		/// Rend operateur un client du channel
 		unsigned int op(string channelName, string Pseudo, Client* opper) ;
-
 		//msg to channel
 		unsigned int msgToChannel(string channelName, string msg, Client* envoyeur);
-
+		//who sur un channel (pattern) en arg
+		unsigned int whoChannel(string* msgtosend, string patternChan="*", string patternClient="*") const;
 		/// Gere le serveur
 		int run();
 };

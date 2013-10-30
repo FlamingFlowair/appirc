@@ -350,27 +350,24 @@ unsigned int Serveur::msgToChannel(string channelName, string msg, Client* envoy
 }
 
 
-/*
-unsigned int Serveur::whoChannel(string* msgtosend, string pattern) const {
+unsigned int Serveur::whoChannel(string* msgtosend, string patternChan, string patternClient) const {
 	string regpattern;
 	size_t place;
 	// On remplace tous les * en .* pour correspondre aux regex C++
-	while ( pattern.length() != 0) {
-		if ( (place=pattern.find("*")) != pattern.npos) {
-			regpattern+=pattern.substr(0, place)+".*";
-			pattern.erase(0, place+1);
+	while ( patternChan.length() != 0) {
+		if ( (place=patternChan.find("*")) != patternChan.npos) {
+			regpattern+=patternChan.substr(0, place)+".*";
+			patternChan.erase(0, place+1);
 		}
 		else {
-			regpattern+=pattern;
-			pattern.erase(0);
+			regpattern+=patternChan;
+			patternChan.erase(0);
 		}
 	}
-	map<string, Channel*>:: iterator it=;
-	list<Client*>::const_iterator it=clientsServ.begin();
-	list<Client*>::const_iterator fin=clientsServ.end();
-	for(; it!=fin; ++it) {
-		if (regex_match((*it)->getPseudo(), regex(regpattern))) {
-			*msgtosend=(*msgtosend)+((*it)->getPseudo())+"\n";
+	map<string, Channel*>::const_iterator it=nomToChannel.begin();
+	for(; it!=nomToChannel.end(); ++it) {
+		if (regex_match(it->first, regex(regpattern))) {
+			it->second->who(msgtosend, patternClient);
 		}
 	}
 	if (msgtosend->length() == 0) {
@@ -378,4 +375,3 @@ unsigned int Serveur::whoChannel(string* msgtosend, string pattern) const {
 	}
 	return success;
 }
-*/
