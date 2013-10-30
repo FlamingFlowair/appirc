@@ -161,6 +161,18 @@ void Client::agir()
 					break;
 			}
 			break;
+		case 2:
+			switch (srv->msgToChannel(argsCmd[0], argsCmd[1], this)) {
+				case success:
+					sendRep(success);
+					break;
+				case eNotExist:
+					sendRep(eNotExist, argsCmd[0]+"n'est pas un channel du serveur.");
+				default:
+					sendRep(error, "Erreur inconnue");
+					break;
+			}
+			break;
 		case 3: {
 			string reponse;
 			switch (srv->who(&reponse, argsCmd[0])) {
@@ -176,22 +188,21 @@ void Client::agir()
 			}
 			break;
 			}
-		case 4: {
-			string reponse;
-			switch (srv->who(&reponse, argsCmd[0])) {
-				case success:
-					sendRep(success, reponse);
+		case 4: {/*
+					string reponse;
+					switch (srv->whoChannel(&reponse, argsCmd[0])) {
+						case success:
+							sendRep(success, reponse);
+							break;
+						case eNotExist:
+							sendRep(eNotExist, "Aucun client ne correspond a : "+argsCmd[0]);
+							break;
+						default:
+							sendRep(error, "Erreur inconnue");
+							break;
+					}*/
 					break;
-				case eNotExist:
-					cout << reponse << endl;
-					sendRep(eNotExist, "Aucun client ne correspond a : "+argsCmd[0]);
-					break;
-				default:
-					sendRep(error, "Erreur inconnue");
-					break;
-			}
-			break;
-			}
+				}
 		case 5: {
 			string reponse;
 			switch (srv->listerChan(&reponse, argsCmd[0])) {

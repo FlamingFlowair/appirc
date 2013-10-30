@@ -59,6 +59,7 @@ class Serveur {
 		unsigned int join (Client *cli, string channelname);
 		/// Enleve une personne de la liste des clients d'un channel
 		unsigned int unjoin (Client *cli, string channelName);
+
 		/// Envoi un message à un client ou a un channel
 		unsigned int mp(Client* envoyeur, string pseudo, string message);
 		/// who ?
@@ -66,9 +67,13 @@ class Serveur {
 		/// list
 		unsigned int listerChan(string *msgtosend, string patternChannelName="*") const;
 		///kick
-		unsigned int kickFromChan(string channelName, string patternPseudo, Client* kicker) const;
+		unsigned int kickFromChan(string channelName, string patternPseudo, Client* kicker) ;
 		/// Rend operateur un client du channel
-		unsigned int op(string channelName, string Pseudo, Client* opper) const;
+		unsigned int op(string channelName, string Pseudo, Client* opper) ;
+
+		//msg to channel
+		unsigned int msgToChannel(string channelName, string msg, Client* envoyeur);
+
 		/// Gere le serveur
 		int run();
 };

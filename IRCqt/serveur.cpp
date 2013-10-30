@@ -303,7 +303,7 @@ unsigned int Serveur::listerChan(string* msgtosend, string patternChannelName) c
 	return success;
 }
 
-unsigned int Serveur::kickFromChan(string channelName, string patternPseudo, Client* kicker) const {
+unsigned int Serveur::kickFromChan(string channelName, string patternPseudo, Client* kicker) {
 	string regpattern;
 	size_t place;
 	map<string, Channel*>:: iterator it;
@@ -326,7 +326,7 @@ unsigned int Serveur::kickFromChan(string channelName, string patternPseudo, Cli
 	return nomToChannel[channelName]->virerClient(regpattern, kicker);
 }
 
-unsigned int Serveur::op(string channelName, string pseudo, Client* opper) const {
+unsigned int Serveur::op(string channelName, string pseudo, Client* opper)  {
 	string regpattern;
 	map<string, Channel*>:: iterator it;
 	it=nomToChannel.find(channelName);
@@ -336,3 +336,46 @@ unsigned int Serveur::op(string channelName, string pseudo, Client* opper) const
 	}
 	return nomToChannel[channelName]->addop(opper, pseudo);
 }
+
+unsigned int Serveur::msgToChannel(string channelName, string msg, Client* envoyeur)
+{
+	map<string, Channel*>:: iterator itChannel;
+	itChannel=nomToChannel.find(channelName);
+	// Cas ou le channel n'existe pas
+	if (itChannel == nomToChannel.end()) {
+		return eNotExist;
+	}
+	nomToChannel[channelName]->send(envoyeur, msg);
+	return success;
+}
+
+
+/*
+unsigned int Serveur::whoChannel(string* msgtosend, string pattern) const {
+	string regpattern;
+	size_t place;
+	// On remplace tous les * en .* pour correspondre aux regex C++
+	while ( pattern.length() != 0) {
+		if ( (place=pattern.find("*")) != pattern.npos) {
+			regpattern+=pattern.substr(0, place)+".*";
+			pattern.erase(0, place+1);
+		}
+		else {
+			regpattern+=pattern;
+			pattern.erase(0);
+		}
+	}
+	map<string, Channel*>:: iterator it=;
+	list<Client*>::const_iterator it=clientsServ.begin();
+	list<Client*>::const_iterator fin=clientsServ.end();
+	for(; it!=fin; ++it) {
+		if (regex_match((*it)->getPseudo(), regex(regpattern))) {
+			*msgtosend=(*msgtosend)+((*it)->getPseudo())+"\n";
+		}
+	}
+	if (msgtosend->length() == 0) {
+		return eNotExist;
+	}
+	return success;
+}
+*/
