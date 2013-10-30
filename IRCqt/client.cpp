@@ -152,7 +152,7 @@ void Client::agir()
 		case 1:
 			switch (srv->mp(this, argsCmd[0], argsCmd[1])) {
 				case success:
-					sendRep(success, "");
+					sendRep(success);
 					break;
 				case eNotExist:
 					sendRep(eNotExist, argsCmd[0]+"n'est pas un client du serveur.");
@@ -210,7 +210,7 @@ void Client::agir()
 		case 7:
 			switch (srv->kickFromChan(argsCmd[0], argsCmd[1], this)) {
 				case success:
-					sendRep(success, "");
+					sendRep(success);
 					break;
 				case eNotExist:
 					sendRep(eNotExist, "Aucun channel avec ce nom ou aucun client de ce nom dans le channel");
@@ -223,7 +223,7 @@ void Client::agir()
 		case 9:
 			switch (srv->op(argsCmd[0], argsCmd[1], this)) {
 				case success:
-					sendRep(success, "");
+					sendRep(success);
 					break;
 				case eNotExist:
 					sendRep(eNotExist, "Aucun channel avec ce nom ou aucun client de ce nom dans le channel");
