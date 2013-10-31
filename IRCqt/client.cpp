@@ -180,7 +180,7 @@ void Client::agir()
 					sendRep(success, reponse);
 					break;
 				case eNotExist:
-					sendRep(eNotExist, "Aucun client ne correspond a : "+argsCmd[0]);
+					sendRep(eNotExist, "Aucun client ne correspond à : "+argsCmd[0]);
 					break;
 				default:
 					sendRep(error, "Erreur inconnue");
@@ -195,7 +195,7 @@ void Client::agir()
 					sendRep(success, reponse);
 					break;
 				case eNotExist:
-					sendRep(eNotExist, "Aucun channel ne correspond a : "+argsCmd[0]);
+					sendRep(eNotExist, "Aucun channel ne correspond à : "+argsCmd[0]);
 					break;
 				default:
 					sendRep(error, "Erreur inconnue");
@@ -210,7 +210,7 @@ void Client::agir()
 					sendRep(success, reponse);
 					break;
 				case eNotExist:
-					sendRep(eNotExist, "Aucun channel ne correspond a : "+argsCmd[0]);
+					sendRep(eNotExist, "Aucun channel ne correspond à : "+argsCmd[0]);
 					break;
 				default:
 					sendRep(error, "Erreur inconnue");
@@ -218,6 +218,20 @@ void Client::agir()
 			}
 			break;
 			}
+		case 6: {
+			switch(srv->changerTopic(argsCmd[0],argsCmd[1])){
+				case success:
+					sendRep(success);
+					break;
+				case eNotExist:
+					sendRep(eNotExist, "Aucun channel ne correspond à : "+argsCmd[0]);
+					break;
+				default:
+					sendRep(error, "Erreur inconnue");
+					break;
+			}
+			break;
+		}
 		case 7:
 			switch (srv->kickFromChan(argsCmd[0], argsCmd[1], this)) {
 				case success:

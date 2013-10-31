@@ -23,24 +23,24 @@ Pour simplifier la programmtion de la partie 'decodage', nous allons eviter d'ut
 250 ebadarg L'argument n'est pas conforme (mauvais nick, texte au lieu de chiffre..)
 0 esuccess La commande a fonctionné
 
-1) Du client vers le serveur
+1) Du client vers le serveur FAIT
 Commandes: [code: sens]
 1: message d'un client à un client /msg
 args: le nick du client destinataire, le message
 ERR 254: le client désigné n'existe pas
 
-2: message d'un client à un channel 
+2: message d'un client à un channel FAIT
 args: le nom du channel destinataire sans le '#', le message
 
-3: /who général
+3: /who général FAIT
 args: le motif correspondant à l'utilisateur recherché (exemple lap*n)
 Réponse du serveur: une liste de nickname séparés par des "\n"
 
-4: /who sur un channel
+4: /who sur un channel FAIT
 args: le nom du channel sur lequel on fait un who
 Réponse du serveur: une liste de nickname séparés par des "\n"
 
-5: /list des channels
+5: /list des channels FAIT
 arg: le motif correspondant aux noms de channel recherchés (ex: *linux*)
 Cas particulier: si, lors de la commande /list, aucun arg n'est donné, 
 le client ajoute simplement une '*' comme argument

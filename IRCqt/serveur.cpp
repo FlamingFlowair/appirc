@@ -374,3 +374,15 @@ unsigned int Serveur::whoChannel(string* msgtosend, string patternChan, string p
 	}
 	return success;
 }
+
+unsigned int Serveur::changerTopic(string channelName, string newTopic)
+{
+	map<string, Channel*>:: iterator itChannel;
+	itChannel=nomToChannel.find(channelName);
+	// Cas ou le channel n'existe pas
+	if (itChannel == nomToChannel.end()) {
+		return eNotExist;
+	}
+	nomToChannel[channelName]->setTopic(newTopic);
+	return success;
+}
