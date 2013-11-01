@@ -386,3 +386,12 @@ unsigned int Serveur::changerTopic(string channelName, string newTopic)
 	nomToChannel[channelName]->setTopic(newTopic);
 	return success;
 }
+
+unsigned int Serveur::broadcastmsg(string message) const {
+	list<Client*>::const_iterator it=clientsServ.begin();
+	list<Client*>::const_iterator fin=clientsServ.end();
+	for(; it != fin; ++it) {
+		(*it)->sendData(message);
+	}
+	return success;
+}
