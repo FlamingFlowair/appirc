@@ -40,9 +40,25 @@ void Channel::setTopic(string topic) {
 	this->topic = topic;
 }
 
+void Channel::addBan(string pseudo)
+{
+	list<string>::iterator it=find(bannis.begin(), bannis.end(), pseudo);
+	if(it == bannis.end())
+		bannis.push_front(pseudo);
+}
+
+void Channel::removeBan(string pseudo)
+{
+	list<string>::iterator it = find(bannis.begin(), bannis.end(), pseudo);
+	if(it != bannis.end())
+		bannis.erase(it);
+}
+
 unsigned int Channel::addClient(Client* newclient) {
 	if(!isclient(newclient)){
-		clientsChan.push_back(newclient);
+		if(bannis.end() == find(bannis.begin(), bannis.end(), newclient->getPseudo()))
+			clientsChan.push_back(newclient);
+		else return eNotAutorized; //cas d'un black listé
 		if (compt == 0) {
 			opChan.push_back(newclient);
 		}
@@ -52,11 +68,15 @@ unsigned int Channel::addClient(Client* newclient) {
 }
 
 //premiere fonction virerClient()
+//est-ce que il ne faudrait pas le virer aussi de list op? Si.
 unsigned int Channel::virerClient(Client* oldclient) {
 	list<Client*>::iterator it=clientsChan.begin();
 	list<Client*>::iterator fin=clientsChan.end();
 	while (it != fin) {
 		if ((*it)->getFdclient() == oldclient->getFdclient()) {
+			if(isop(*it))
+				virerop(*it,NULL);
+			else return eNotAutorized;
 			--compt;
 			it=clientsChan.erase(it);
 			return success;
@@ -213,15 +233,22 @@ Client* Channel::isclient(string pseudo) {
 
 /*
  * Description : Envoie un message à tous les clients du channel
- * @massage : Message à envoyer
+ * @message : Message à envoyer
+ * Dans le cas ou envoyeur vaut NULL : message général du serveur au channel
  */
 void Channel::send(Client* envoyeur, string message) {
 	list<Client*>::iterator it=clientsChan.begin();
 	list<Client*>::iterator fin=clientsChan.end();
-	while (it != fin) {
-		(*it)->sendData(envoyeur->getPseudo()+" : "+message);
-		++it;
-	}
+	if(envoyeur != NULL)
+		while (it != fin) {
+			(*it)->sendData(envoyeur->getPseudo()+" : "+message);
+			++it;
+		}
+	else
+		while (it != fin) {
+			(*it)->sendData("Serveur : "+message);
+			++it;
+		}
 }
 
 unsigned int Channel::who(string* msgtosend, string pattern) const {
@@ -249,6 +276,45 @@ unsigned int Channel::who(string* msgtosend, string pattern) const {
 		}
 	}
 	if (msgtosend->length() == 0) {
+		return eNotExist;
+	}
+	return success;
+}
+
+unsigned int Channel::ban(string *reponse, string pattern, Client * envoyeur, int *nbBannis)
+{
+	string regpattern;
+	size_t place;
+	int memBannis= *nbBannis;
+	// On remplace tous les * en .* pour correspondre aux regex C++
+	while ( pattern.length() != 0) {
+		if ( (place=pattern.find("*")) != pattern.npos) {
+			regpattern+=pattern.substr(0, place)+".*";
+			pattern.erase(0, place+1);
+		}
+		else {
+			regpattern+=pattern;
+			pattern.erase(0);
+		}
+	}
+	//Cette ligne ajoute simplement le nom du channel avant la liste des nicks
+	//histoire de s'y retrouver.
+	*reponse=(*reponse)+"Bannis de "+name+" : \n";
+	list<Client*>::const_iterator it=clientsChan.begin();
+	list<Client*>::const_iterator fin=clientsChan.end();
+	for(; it!=fin; ++it) {
+		if (regex_match((*it)->getPseudo(), regex(regpattern))) {
+			*reponse=(*reponse)+((*it)->getPseudo())+"\n";
+			//virer le banni et l'ajouter à la black list
+			if(virerClient((*it)->getPseudo(), envoyeur) == eNotAutorized){
+				*reponse =(*reponse)+"Vous n'avez pas de droits sur le channel : "+name+"\n";
+				return eNotAutorized;
+			}
+			addBan((*it)->getPseudo());
+			*nbBannis++;
+		}
+	}
+	if (*nbBannis == memBannis) {
 		return eNotExist;
 	}
 	return success;

@@ -210,7 +210,7 @@ unsigned int Serveur::join(Client* cli, string channelName) {
 				return retTmp;
 		}
 	}
-	else {
+	else {//ici : ajouter verif liste des bannis
 		return nomToChannel[channelName]->addClient(cli);
 	}
 }
@@ -375,15 +375,59 @@ unsigned int Serveur::whoChannel(string* msgtosend, string patternChan, string p
 	return success;
 }
 
-unsigned int Serveur::changerTopic(string channelName, string newTopic)
+unsigned int Serveur::changerTopic(string channelName, string newTopic, Client * envoyeur, string * reponse)
 {
 	map<string, Channel*>:: iterator itChannel;
 	itChannel=nomToChannel.find(channelName);
 	// Cas ou le channel n'existe pas
-	if (itChannel == nomToChannel.end()) {
+	if (itChannel == nomToChannel.end())
+		return eNotExist;
+	if(newTopic == ""){
+		*reponse==nomToChannel[channelName]->getTopic();
+		return success;
+	}
+	if(nomToChannel[channelName]->isop(envoyeur) == false)
+		return eNotAutorized;
+	nomToChannel[channelName]->setTopic(newTopic);
+	nomToChannel[channelName]->send(NULL,"Le topic du channel est à présent : "+newTopic);
+	*reponse="";
+	return success;
+}
+
+
+//Par ordre croissant de code commande, ban est la premiere à vérifier le nombre
+//d'arguments? A vérifier
+//Pattern est ici celui du client, peut-etre penser à ajouter un pattern channel
+unsigned int Serveur::ban(string *reponse, string patternChan, string patternPseudo, Client *envoyeur)
+{
+	if(envoyeur->getNbArg() <= 1)
+		return eMissingArg;
+	string regpattern;
+	size_t place;
+	// On remplace tous les * en .* pour correspondre aux regex C++
+	while ( patternChan.length() != 0) {
+		if ( (place=patternChan.find("*")) != patternChan.npos) {
+			regpattern+=patternChan.substr(0, place)+".*";
+			patternChan.erase(0, place+1);
+		}
+		else {
+			regpattern+=patternChan;
+			patternChan.erase(0);
+		}
+	}
+	//recherche sur tous les chan dans le pattern
+	int nbBannis = 0;
+	map<string, Channel*>::const_iterator it=nomToChannel.begin();
+	for(; it!=nomToChannel.end(); ++it) {
+		if (regex_match(it->first, regex(regpattern))) {
+			//appel de la methode ban du channel
+			if(it->second->ban(reponse, patternPseudo, envoyeur, &nbBannis) == eNotAutorized)
+				return eNotAutorized;
+		}
+	}
+	if (nbBannis == 0) {
 		return eNotExist;
 	}
-	nomToChannel[channelName]->setTopic(newTopic);
 	return success;
 }
 

@@ -46,20 +46,25 @@ Cas particulier: si, lors de la commande /list, aucun arg n'est donné,
 le client ajoute simplement une '*' comme argument
 Réponse du serveur: une liste de "channelName topic" séparés par des "\n"
 
-6: /topic pour changer le topic d'un channel
+6: /topic pour changer le topic d'un channel FAIT
 arg: le nom du channel (sans #), le nouveau topic
 Cas particulier: si le nouveau topic est vide, le serveur renvoie le topic en cours.
+//faut etre opé bien sûr
 ERR 254: le channel n'existe pas
+ERR 252: enotauthorised
 
-7: /kick pour virer un utilisateur d'un channel
+7: /kick pour virer un utilisateur d'un channel FAIT
 arg: le channel sur lequel on kick, le nick du client à kicker
 Option: on peut aussi passer un motif pour kicker plein de gens à la
 fois :)
 ERR 254: le nick n'est pas sur le channel
 
-8: /ban : interdit à un client de joindre un channel
+8: /ban : interdit à un client de joindre un channel FAIT
 arg: le channel d'où on est banni, le nick du client à bannir
 option: cette commande peut aussi supporter des motifs
+ERR 253: emissingarg 
+ERR 254: enotexist 
+ERR 252: enotauthorised
 
 9: /op: rendre un utilisateur op
 arg: le channel sur pour lequel l'utilisateur va être op, le nick du 

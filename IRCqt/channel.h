@@ -19,6 +19,8 @@ class Channel {
 		list<Client*> clientsChan;
 		/// Liste des operateurs
 		list<Client*> opChan;
+		///Liste des bannis par pseudo (cf protocole)
+		list<string> bannis;
 		/// Compteur de personnes dans le channel (si 0 destruction)
 		unsigned int compt;
 	public:
@@ -33,7 +35,10 @@ class Channel {
 		const string& getTopic() const;
 		void setTopic(string topic);
 
-
+		// Ajouter un client à la black list
+		void addBan(string pseudo);
+		//Enlever un client de la black list
+		void removeBan(string pseudo);
 		/// Ajouter un client à listecli_chan
 		unsigned int addClient(Client* newclient);
 		/// Virer un client à la listecli_chan
@@ -50,6 +55,8 @@ class Channel {
 		Client * isclient(string pseudo);
 		/// appelée pour commande who sur channel
 		unsigned int who(string* msgtosend, string pattern)const;
+		///appelée pour commande ban
+		unsigned int ban(string *reponse, string pattern, Client * envoyeur, int * nbBannis);
 		/// Enverras le message à tous les utilisateurs du channel
 		void send(Client* envoyeur, string message);
 

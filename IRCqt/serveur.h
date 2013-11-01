@@ -75,7 +75,13 @@ class Serveur {
 		//who sur un channel (pattern) en arg
 		unsigned int whoChannel(string* msgtosend, string patternChan="*", string patternClient="*") const;
 		//changer le topic d'un channel en arg
-		unsigned int changerTopic(string channelName, string newTopic);
+		unsigned int changerTopic(string channelName, string newTopic, Client *envoyeur, string *reponse);
+		//ban un client ou un pattern d'un channel
+		unsigned int ban(string *reponse, string patternChan, string patternPseudo, Client * envoyeur);
+
+
+
+		//message général du serveur aux clients
 		unsigned int broadcastmsg(string message) const;
 		/// Gere le serveur
 		int run();

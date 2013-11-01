@@ -19,13 +19,15 @@ class Client {
 		vector<string> argsCmd; // Tous les messages recus sont des commandes : la normalisation est faite par le prgmclient
 		uint16_t idCmd;
 		uint8_t codeCmd_ctos;
+		//Pour savoir le nombre d'argument (et gérer les eMissingArg)
+		int nbArg;
 	public:
 		/// Constructeur / Destructeur
 		Client(int socket, string pseudo);
 		~Client();
 
 		/// Getteurs et setteurs
-
+		int getNbArg()const;
 		bool isAdeconnecter() const;
 		void setAdeconnecter(bool adeconnecter);
 		const string& getChainecommande() const;
@@ -38,7 +40,6 @@ class Client {
 		void setCodecmd(uint8_t codeCmd_ctos);
 		uint16_t getIdcmd() const;
 		void setIdcmd(uint16_t idCmd);
-
 
 		/// Methodes
 		/// Methode appelée par le serveur à la sortie du select

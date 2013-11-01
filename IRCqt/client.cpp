@@ -10,7 +10,7 @@
 using namespace std;
 using namespace ERR;
 
-Client::Client(int socket, string pseudo) :fdSocket(socket), pseudo(pseudo)
+Client::Client(int socket, string pseudo) :fdSocket(socket), pseudo(pseudo), nbArg(0)
 {
 	adeconnecter=false;
 	cout << "Construction client " << pseudo << endl;
@@ -22,6 +22,11 @@ Client::~Client()
 	sendData("Vous avez été déconnecté du serveur");
 	close(fdSocket);
 	cout << "Client détruit " << pseudo << endl;
+}
+
+int Client::getNbArg() const
+{
+	return nbArg;
 }
 
 void Client::readCommande()
@@ -60,6 +65,7 @@ void Client::readCommande()
 	int i=0;
 	while (argstmp.length() != 0) {
 		argsCmd.insert(it, argstmp.substr(0, argstmp.find("\n")));
+		nbArg++;
 		argstmp.erase(0, argsCmd[i].length()+1);
 		++it;
 	}
@@ -219,12 +225,16 @@ void Client::agir()
 			break;
 			}
 		case 6: {
-			switch(srv->changerTopic(argsCmd[0],argsCmd[1])){
+			string reponse;
+			switch(srv->changerTopic(argsCmd[0], argsCmd[1], this, &reponse)){
 				case success:
-					sendRep(success);
+					sendRep(success, reponse);
 					break;
 				case eNotExist:
 					sendRep(eNotExist, "Aucun channel ne correspond à : "+argsCmd[0]);
+					break;
+				case eNotAutorized:
+					sendRep(eNotAutorized, "Vous n'avez pas les droits pour changer le topic du channel");
 					break;
 				default:
 					sendRep(error, "Erreur inconnue");
@@ -245,6 +255,27 @@ void Client::agir()
 					break;
 			}
 			break;
+		case 8: {
+			string reponse;
+			switch (srv->ban(&reponse, argsCmd[0], argsCmd[1], this)) {
+				case success:
+					sendRep(success, reponse);
+					break;
+				case eNotExist:
+					sendRep(eNotExist, "Aucun client et/ou channel ne correspond à : "+argsCmd[0]+" "+argsCmd[1]);
+					break;
+				case eMissingArg:
+					sendRep(eMissingArg, "Erreur dans le nombre d'arguments");
+					break;
+				case eNotAutorized:
+					sendRep(eNotAutorized, reponse+"Vous n'avez pas les droits pour bannir, opération incomplète (Avez vous les droits sur TOUS les channels donnés?)");
+					break;
+				default:
+					sendRep(error, reponse+"Erreur inconnue");
+					break;
+			}
+			break;
+			}
 		case 9:
 			switch (srv->op(argsCmd[0], argsCmd[1], this)) {
 				case success:
