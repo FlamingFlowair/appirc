@@ -57,6 +57,10 @@ class Channel {
 		unsigned int who(string* msgtosend, string pattern)const;
 		///appelée pour commande ban
 		unsigned int ban(string *reponse, string pattern, Client * envoyeur, int * nbBannis);
+		///appelée pour commande unban
+		unsigned int unban(string *reponse, string pattern, Client * envoyeur, int * nbDebannis);
+		///appelée pour commande listBan
+		void listBan(string *reponse);
 		/// Enverras le message à tous les utilisateurs du channel
 		void send(Client* envoyeur, string message);
 

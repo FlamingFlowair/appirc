@@ -319,3 +319,49 @@ unsigned int Channel::ban(string *reponse, string pattern, Client * envoyeur, in
 	}
 	return success;
 }
+
+unsigned int Channel::unban(string *reponse, string pattern, Client *envoyeur, int *nbDebannis)
+{
+	string regpattern;
+	size_t place;
+	int memDebannis= *nbDebannis;
+	// On remplace tous les * en .* pour correspondre aux regex C++
+	while ( pattern.length() != 0) {
+		if ( (place=pattern.find("*")) != pattern.npos) {
+			regpattern+=pattern.substr(0, place)+".*";
+			pattern.erase(0, place+1);
+		}
+		else {
+			regpattern+=pattern;
+			pattern.erase(0);
+		}
+	}
+	//Cette ligne ajoute simplement le nom du channel avant la liste des nicks
+	//histoire de s'y retrouver.
+	*reponse=(*reponse)+"Débannis de "+name+" : \n";
+	list<Client*>::const_iterator it=clientsChan.begin();
+	list<Client*>::const_iterator fin=clientsChan.end();
+	for(; it!=fin; ++it) {
+		if (regex_match((*it)->getPseudo(), regex(regpattern))) {
+			*reponse=(*reponse)+((*it)->getPseudo())+"\n";
+			//enlever le banni de la black list
+			if(isop(envoyeur) == false)
+				return eNotAutorized;
+			removeBan((*it)->getPseudo());
+			*nbDebannis++;
+		}
+	}
+	if (*nbDebannis == memDebannis) {
+		return eNotExist;
+	}
+	return success;
+}
+
+void Channel::listBan(string *reponse)
+{
+	list<string>::const_iterator it=bannis.begin();
+	list<string>::const_iterator fin=bannis.end();
+	for(; it!=fin; ++it) {
+		*reponse=(*reponse)+(*it)+"\n";
+	}
+}

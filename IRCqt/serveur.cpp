@@ -327,13 +327,23 @@ unsigned int Serveur::kickFromChan(string channelName, string patternPseudo, Cli
 }
 
 unsigned int Serveur::op(string channelName, string pseudo, Client* opper) {
-	map<string, Channel*>:: iterator it;
-	it=nomToChannel.find(channelName);
+	map<string, Channel*>:: iterator itChannel;
+	itChannel=nomToChannel.find(channelName);
 	// Cas ou le channel n'existe pas
-	if (it == nomToChannel.end()) {
+	if (itChannel == nomToChannel.end()) {
 		return eNotExist;
 	}
-	return nomToChannel[channelName]->addop(opper, pseudo);
+	list<Client*>::iterator it=clientsServ.begin();
+	list<Client*>::iterator fin=clientsServ.end();
+	while(it != fin) {
+		if ((*it)->getPseudo() == pseudo) {
+			return nomToChannel[channelName]->virerop((*it) , opper);
+		}
+		else {
+			++it;
+		}
+	}
+	return eNotExist;
 }
 
 unsigned int Serveur::msgToChannel(string channelName, string msg, Client* envoyeur)
@@ -396,11 +406,10 @@ unsigned int Serveur::changerTopic(string channelName, string newTopic, Client *
 
 
 //Par ordre croissant de code commande, ban est la premiere à vérifier le nombre
-//d'arguments? A vérifier
-//Pattern est ici celui du client, peut-etre penser à ajouter un pattern channel
+//d'arguments? A vérifier -->non, les autres commandes avant devront aussi etre modifiées
 unsigned int Serveur::ban(string *reponse, string patternChan, string patternPseudo, Client *envoyeur)
 {
-	if(envoyeur->getNbArg() <= 1)
+	if(envoyeur->getNbArg() < 2)
 		return eMissingArg;
 	string regpattern;
 	size_t place;
@@ -428,6 +437,104 @@ unsigned int Serveur::ban(string *reponse, string patternChan, string patternPse
 	if (nbBannis == 0) {
 		return eNotExist;
 	}
+	return success;
+}
+
+//Dans op() et deop() : le parcours de toute la liste client serveur, c'est un peu nul
+//le mieux ce serait dans addop et virerop de faire un parcours de opChan
+unsigned int Serveur::deop(string channelName, string pseudo, Client *deopper)
+{
+	if(deopper->getNbArg() < 2)
+		return eMissingArg;
+	map<string, Channel*>:: iterator itChannel;
+	itChannel=nomToChannel.find(channelName);
+	// Cas ou le channel n'existe pas
+	if (itChannel == nomToChannel.end()) {
+		return eNotExist;
+	}
+	list<Client*>::iterator it=clientsServ.begin();
+	list<Client*>::iterator fin=clientsServ.end();
+	while(it != fin) {
+		if ((*it)->getPseudo() == pseudo) {
+			return nomToChannel[channelName]->virerop((*it) , deopper);
+		}
+		else {
+			++it;
+		}
+	}
+	return eNotExist;
+}
+
+unsigned int Serveur::nick(string newpseudo, Client * envoyeur)
+{
+	if(envoyeur->getNbArg() == 0)
+		return eMissingArg;
+	if(envoyeur->getNbArg() > 1)
+		return eBadArg;
+	list<Client*>::const_iterator it=clientsServ.begin();
+	list<Client*>::const_iterator fin=clientsServ.end();
+	for(; it != fin; ++it) {
+		if((*it)->getPseudo() == newpseudo)
+			return eNickCollision;
+		}
+	string oldpseudo=envoyeur->getPseudo();
+	envoyeur->setPseudo(newpseudo);
+	//envoyer la bonne nouvelle à tous les channels où est le client? ou a tout le serveur ?
+	//allez, tout le serveur
+	it=clientsServ.begin();
+	for(; it != fin; ++it) {
+		(*it)->sendData(oldpseudo+"\n"+newpseudo+"\n",132);//conforme au proto
+		}
+	return success;
+}
+
+unsigned int Serveur::unban(string *reponse, string patternChan, string patternPseudo, Client *envoyeur)
+{
+
+	if(envoyeur->getNbArg() < 2)
+		return eMissingArg;
+	string regpattern;
+	size_t place;
+	// On remplace tous les * en .* pour correspondre aux regex C++
+	while ( patternChan.length() != 0) {
+		if ( (place=patternChan.find("*")) != patternChan.npos) {
+			regpattern+=patternChan.substr(0, place)+".*";
+			patternChan.erase(0, place+1);
+		}
+		else {
+			regpattern+=patternChan;
+			patternChan.erase(0);
+		}
+	}
+	//recherche sur tous les chan dans le pattern
+	int nbDebannis = 0;
+	map<string, Channel*>::const_iterator it=nomToChannel.begin();
+	for(; it!=nomToChannel.end(); ++it) {
+		if (regex_match(it->first, regex(regpattern))) {
+			//appel de la methode unban du channel
+			if(it->second->unban(reponse, patternPseudo, envoyeur, &nbDebannis) == eNotAutorized)
+				return eNotAutorized;
+		}
+	}
+	if (nbDebannis == 0) {
+		return eNotExist;
+	}
+	return success;
+}
+
+unsigned int Serveur::listerBan(string channelName, string *reponse, Client *envoyeur)
+{
+	if(envoyeur->getNbArg() == 0)
+		return eMissingArg;
+	if(envoyeur->getNbArg() > 1)
+		return eBadArg;
+	map<string, Channel*>:: iterator itChannel;
+	itChannel = nomToChannel.find(channelName);
+	// Cas ou le channel n'existe pas
+	if (itChannel == nomToChannel.end()) {
+		return eNotExist;
+	}
+	nomToChannel[channelName]->listBan(reponse);
 	return success;
 }
 

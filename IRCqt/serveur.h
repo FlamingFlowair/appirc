@@ -78,9 +78,14 @@ class Serveur {
 		unsigned int changerTopic(string channelName, string newTopic, Client *envoyeur, string *reponse);
 		//ban un client ou un pattern d'un channel
 		unsigned int ban(string *reponse, string patternChan, string patternPseudo, Client * envoyeur);
-
-
-
+		//deop un client du channel //modif à faire cf code source deop
+		unsigned int deop(string channelName, string pseudo, Client * deopper);
+		//changer de pseudo
+		unsigned int nick(string newpseudo, Client *envoyeur);
+		//unban un client ou un pattern d'un channel
+		unsigned int unban(string *reponse, string patternChan, string patternPseudo, Client * envoyeur);
+		//lister les bans d'un channel
+		unsigned int listerBan(string channelName, string * reponse, Client *envoyeur);
 		//message général du serveur aux clients
 		unsigned int broadcastmsg(string message) const;
 		/// Gere le serveur

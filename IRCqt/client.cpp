@@ -264,7 +264,7 @@ void Client::agir()
 					sendRep(eNotExist, "Aucun client et/ou channel ne correspond à : "+argsCmd[0]+" "+argsCmd[1]);
 					break;
 				case eMissingArg:
-					sendRep(eMissingArg, "Erreur dans le nombre d'arguments");
+					sendRep(eMissingArg, "Erreur, mauvais nombre d'arguments");
 					break;
 				case eNotAutorized:
 					sendRep(eNotAutorized, reponse+"Vous n'avez pas les droits pour bannir, opération incomplète (Avez vous les droits sur TOUS les channels donnés?)");
@@ -291,6 +291,25 @@ void Client::agir()
 					break;
 			}
 			break;
+		case 20:
+			switch (srv->deop(argsCmd[0], argsCmd[1], this)) {
+				case success:
+					sendRep(success);
+					break;
+				case eNotExist:
+					sendRep(eNotExist, "Aucun channel avec ce nom ou aucun client de ce nom op dans le channel");
+					break;
+				case eNotAutorized:
+					sendRep(eNotAutorized, "Vous n'avez pas les droits pour deop quelqu'un dans ce channel");
+					break;
+				case eMissingArg:
+					sendRep(eMissingArg, "Erreur, mauvais nombre d'arguments");
+					break;
+				default:
+					sendRep(error, "Erreur inconnue");
+					break;
+			}
+			break;
 		case 21:
 			switch (srv->join(this, argsCmd[0])) {
 				case success:
@@ -298,6 +317,25 @@ void Client::agir()
 					break;
 				case eTopicUnset:
 					sendRep(success, "Un channel a été créé, utilisez la commande topic pour définir le topic");
+					break;
+				default:
+					sendRep(error, "Erreur inconnue");
+					break;
+			}
+			break;
+		case 22:
+			switch (srv->nick(argsCmd[0],this)) {
+				case success:
+					sendRep(success, "Votre pseudo est désormais : "+argsCmd[0]);
+					break;
+				case eMissingArg:
+					sendRep(eMissingArg, "Argument manquant : nouveau pseudo");
+					break;
+				case eBadArg:
+					sendRep(eBadArg, "Trop d'arguments, votre login doit etre une suite sans espace de chifres et de lettres");
+					break;
+				case eNickCollision:
+					sendRep(eNickCollision, "Un autre client est déjà connecté avec ce pseudo");
 					break;
 				default:
 					sendRep(error, "Erreur inconnue");
@@ -314,6 +352,46 @@ void Client::agir()
 					break;
 				default:
 					sendRep(error, "Erreur inconnue");
+					break;
+			}
+			break;
+		case 24: {
+			string reponse;
+			switch (srv->unban(&reponse, argsCmd[0], argsCmd[1], this)) {
+				case success:
+					sendRep(success, reponse);
+					break;
+				case eNotExist:
+					sendRep(eNotExist, "Aucun client et/ou channel ne correspond à : "+argsCmd[0]+" "+argsCmd[1]);
+					break;
+				case eMissingArg:
+					sendRep(eMissingArg, "Erreur, mauvais nombre d'arguments");
+					break;
+				case eNotAutorized:
+					sendRep(eNotAutorized, reponse+"Vous n'avez pas les droits pour débannir, opération incomplète (Avez vous les droits sur TOUS les channels donnés?)");
+					break;
+				default:
+					sendRep(error, reponse+"Erreur inconnue");
+					break;
+				}
+			break;
+			}
+		case 25:
+			string reponse;
+			switch (srv->listerBan(argsCmd[0], &reponse, this)) {
+				case success:
+					sendRep(success, reponse);
+					break;
+				case eNotExist:
+					sendRep(eNotExist, argsCmd[0]+"n'est pas un channel du serveur.");
+				case eMissingArg:
+					sendRep(eMissingArg, "Argument manquant : nom du channel");
+					break;
+				case eBadArg:
+					sendRep(eBadArg, "Trop d'arguments, entrez le nom d'un seul channel");
+					break;
+				default:
+					sendRep(error, reponse+"Erreur inconnue");
 					break;
 			}
 			break;
