@@ -10,7 +10,7 @@
 using namespace std;
 using namespace ERR;
 
-Client::Client(int socket, string pseudo) :fdSocket(socket), pseudo(pseudo), nbArg(0)
+Client::Client(int socket, string pseudo) :fdSocket(socket), pseudo(pseudo)
 {
 	adeconnecter=false;
 	cout << "Construction client " << pseudo << endl;
@@ -26,7 +26,7 @@ Client::~Client()
 
 int Client::getNbArg() const
 {
-	return nbArg;
+	return argsCmd.size();
 }
 
 void Client::readCommande()
@@ -65,7 +65,6 @@ void Client::readCommande()
 	int i=0;
 	while (argstmp.length() != 0) {
 		argsCmd.insert(it, argstmp.substr(0, argstmp.find("\n")));
-		nbArg++;
 		argstmp.erase(0, argsCmd[i].length()+1);
 		++it;
 	}
