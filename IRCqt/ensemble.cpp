@@ -1,4 +1,8 @@
 #include "ensemble.h"
+#include <iostream>
+
+using namespace std;
+
 
 Ensemble::Ensemble(){
 	max=0;
@@ -25,10 +29,15 @@ void Ensemble::add(int fd) {
 }
 
 void Ensemble::clr(int fd) {
+	cout << "I" << endl;
 	FD_CLR(fd, &unfd);
+	cout << "II" << endl;
 	if ((fd+1) == max) {
+		cout << "III" << endl;
 		max=recherchemax()+1;
+		cout << "IV" << endl;
 	}
+	cout << "V" << endl;
 }
 
 void Ensemble::raz() {
@@ -37,10 +46,13 @@ void Ensemble::raz() {
 
 int Ensemble::recherchemax() {
 	int max;
+	cout << "01" << endl;
 	for(int i=0;i<65535; ++i) {
-		if (FD_ISSET(i, &unfd)) {
+		if (FD_ISSET(i, &unfd) != 0) {
 			max=i;
+			cout << "0newmax : " << max << endl;
 		}
 	}
+	cout << "0a" << endl;
 	return max;
 }

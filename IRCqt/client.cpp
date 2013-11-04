@@ -19,7 +19,6 @@ Client::Client(int socket, string pseudo) :fdSocket(socket), pseudo(pseudo)
 /// Le pseudo ne s'affiche pas, wtf ?
 Client::~Client()
 {
-	sendData("Vous avez été déconnecté du serveur");
 	close(fdSocket);
 	cout << "Client détruit " << pseudo << endl;
 }
@@ -31,30 +30,31 @@ int Client::getNbArg() const
 
 void Client::readCommande()
 {
+	argsCmd.clear();
 	uint16_t tailleTrame;
 	string argstmp;
 	char buffer[4096]={0}; // il semblerait que l'optimisation fasse en sorte d'utiliser le même buffer d'ou l'initialisation
 	int nblu;
 	nblu=read(fdSocket, &tailleTrame, sizeof(uint16_t));
-	if (nblu < 0) {
-		perror("Erreur lecture taille trame.");
+	if (nblu <= 0) {
+		perror("Erreur lecture taille trame :");
 		adeconnecter=true;
 		return;
 	}
 	nblu=read(fdSocket, &idCmd, sizeof(uint16_t));
-	if (nblu < 0) {
-		perror("Erreur lecture identifiant commande.");
+	if (nblu <= 0) {
+		perror("Erreur lecture identifiant commande :");
 		adeconnecter=true;
 		return;
 	}
 	nblu=read(fdSocket, &codeCmd_ctos, sizeof(uint8_t));
-	if (nblu < 0) {
-		perror("Erreur lecture code commande.");
+	if (nblu <= 0) {
+		perror("Erreur lecture code commande :");
 		adeconnecter=true;
 		return;
 	}
 	nblu=read(fdSocket, buffer, tailleTrame-3);
-	if (nblu < 0) {
+	if (nblu <= 0) {
 		adeconnecter=true;
 		return;
 	}
