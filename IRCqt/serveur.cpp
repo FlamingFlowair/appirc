@@ -64,7 +64,7 @@ Serveur::Serveur(string hostname, unsigned int port, string nom, string messagea
 	// On l'initialise
 	init_sockaddrin(&sa, hostname, port);
 	// On le bind
-	if (bind(fdSocket, (struct sockaddr *)&sa, sizeof(struct sockaddr)) == -1){
+	if (::bind(fdSocket, (struct sockaddr *)&sa, sizeof(struct sockaddr)) == -1){
 		perror("Erreur bind socket écoute");
 		exit(BIND_SOCKET);
 	}

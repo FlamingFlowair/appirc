@@ -66,25 +66,26 @@ ERR 253: emissingarg
 ERR 254: enotexist 
 ERR 252: enotauthorised
 
-9: /op: rendre un utilisateur op
+9: /op: rendre un utilisateur op FAIT
 arg: le channel sur pour lequel l'utilisateur va être op, le nick du 
 client à opper
 ERR 254: le nick n'est pas sur le channel
+ERR 252: enotauthorised
 
-20: /deop: enlever le op à un utilisateur
+20: /deop: enlever le op à un utilisateur FAIT
 args: les mêmes que /op
 ERR 254: le nick n'est pas sur le channel
 
-21: /join: joindre un channel
+21: /join: joindre un channel FAIT
 arg: le channel à joindre
 ERR 252: l'utilisateur est banni du channel
 
-22: /nick : demander à changer de nick
+22: /nick : demander à changer de nick FAIT
 args: le nick proposé
 ERR 251: nick déja pris
 ERR 250: nick invalide
 
-23: /leave: quitter un channel
+23: /leave: quitter un channel FAIT
 Arg: le nom du channel quitté
 
 24: /unban: dé-bannir enlever un ban sur un channel
