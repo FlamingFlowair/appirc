@@ -62,7 +62,7 @@ class Channel {
 		///appelée pour commande listBan
 		void listBan(string *reponse);
 		/// Enverras le message à tous les utilisateurs du channel
-		void send(Client* envoyeur, string message, unsigned int coderet=128);
+		void send(Client* envoyeur, string message, unsigned int coderet);
 
 };
 

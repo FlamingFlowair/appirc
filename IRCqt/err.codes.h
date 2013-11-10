@@ -14,4 +14,17 @@ namespace ERR {
 		  };
 }
 
+namespace RET {
+	enum { apubmsg = 128,
+		   aprivmsg = 129,
+		   aop = 130,
+		   atopic = 131,
+		   anick = 132,
+		   aleave = 133,
+		   akick = 134,
+		   aban = 135,
+		   rwall = 136,
+		   ajoin = 137
+		 };
+}
 #endif // ERR_CODES

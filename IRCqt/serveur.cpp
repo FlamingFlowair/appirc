@@ -25,6 +25,7 @@
 #include "ensemble.h"
 
 using namespace ERR;
+using namespace RET;
 using namespace std;
 
 enum {INCONNUE, CREATE_SOCKET, BIND_SOCKET, LISTEN_SOCKET, SELECT_SOCKET};
@@ -150,7 +151,7 @@ int Serveur::run()
 				++it;
 			}
 			clientsServ.insert(it, nouveauclient);
-			nouveauclient->sendData(messAcc+"\n", 136);
+			nouveauclient->sendRep(136, messAcc+"\n");
 		}
 		// cas ou on a quelquechose sur l'entrée standard
 		if (FD_ISSET(STDIN_FILENO, &tmp)) {
@@ -248,7 +249,7 @@ unsigned int Serveur::mp(Client* envoyeur, string pseudo, string message) {
 	list<Client*>::iterator fin=clientsServ.end();
 	while(it != fin) {
 		if ((*it)->getPseudo() == pseudo) {
-			(*it)->sendData(envoyeur->getPseudo()+"\n"+message+"\n", 129);
+			(*it)->sendRep(129, envoyeur->getPseudo()+"\n"+message+"\n");
 			return success;
 		}
 		else {
@@ -346,7 +347,7 @@ unsigned int Serveur::op(string channelName, string pseudo, Client* opper) {
 	list<Client*>::iterator fin=clientsServ.end();
 	while(it != fin) {
 		if ((*it)->getPseudo() == pseudo) {
-			return nomToChannel[channelName]->virerop((*it) , opper);
+			return nomToChannel[channelName]->addop((*it) , opper->getPseudo());
 		}
 		else {
 			++it;
@@ -354,6 +355,7 @@ unsigned int Serveur::op(string channelName, string pseudo, Client* opper) {
 	}
 	return eNotExist;
 }
+
 
 unsigned int Serveur::msgToChannel(string channelName, string msg, Client* envoyeur)
 {
@@ -363,7 +365,7 @@ unsigned int Serveur::msgToChannel(string channelName, string msg, Client* envoy
 	if (itChannel == nomToChannel.end()) {
 		return eNotExist;
 	}
-	nomToChannel[channelName]->send(envoyeur, msg);///AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+	nomToChannel[channelName]->send(envoyeur, msg, apubmsg);
 	return success;
 }
 
@@ -493,7 +495,7 @@ unsigned int Serveur::nick(string newpseudo, Client * envoyeur)
 	//allez, tout le serveur
 	it=clientsServ.begin();
 	for(; it != fin; ++it) {
-		(*it)->sendData(oldpseudo+"\n"+newpseudo+"\n",132);
+		(*it)->sendRep(132, oldpseudo+"\n"+newpseudo+"\n");
 		}
 	return success;
 }
@@ -552,7 +554,7 @@ unsigned int Serveur::broadcastmsg(string message) const {
 	list<Client*>::const_iterator it=clientsServ.begin();
 	list<Client*>::const_iterator fin=clientsServ.end();
 	for(; it != fin; ++it) {
-		(*it)->sendData(message+"\n", 136);
+		(*it)->sendRep(136, message+"\n");
 	}
 	return success;
 }

@@ -1,6 +1,7 @@
 #include "channel.h"
 #include "err.codes.h"
 using namespace ERR;
+using namespace RET;
 
 #include <iostream>
 using namespace std;
@@ -103,7 +104,7 @@ unsigned int Channel::virerClient(string patternOldClient, Client* kicker) {
 	while (it != fin) {
 		if (regex_match((*it)->getPseudo(), regex(patternOldClient))) {
 			if (kicker != NULL) {
-				(*it)->sendData(name+"\n"+(*it)->getPseudo()+"\n"+kicker->getPseudo()+"\n", 134);
+				send(kicker, name+"\n"+(*it)->getPseudo()+"\n"+kicker->getPseudo()+"\n", akick);
 				if (isop(*it)){
 					virerop(*it);
 				}
@@ -139,8 +140,10 @@ unsigned int Channel::addop(Client* oldop, string newop) {
 	if  (isop(oldop) == false) {
 		return eNotAutorized;
 	}
-	if (isclient(newop)) {
+	newopptr=isclient(newop);
+	if (newopptr != NULL) {
 		opChan.push_back(newopptr);
+		newopptr->sendRep(aop, oldop->getPseudo()+"\n"+name+"o");
 		return success;
 	}
 	else {
@@ -156,17 +159,23 @@ unsigned int Channel::addop(Client* oldop, string newop) {
 unsigned int Channel::virerop(Client* oldop, Client* kicker) {
 	list<Client*>::iterator it=opChan.begin();
 	list<Client*>::iterator fin=opChan.end();
+	/*code de retour 130 aop : changement de droit
+	Arg: le nick du client qui a changé les droits, le channel sur lequel les
+	droits ont changé, les nouveaux droits
+	Droits (pour le moment un seul, bcp plus sur un vrai irc):
+	o=>op (si pas de o, alors on est pas op)*/
 	while (it != fin) {
 		if ((*it)->getFdclient() == oldop->getFdclient()) {
 			if (kicker != NULL && isop(kicker)) {
-				send(kicker , oldop->getPseudo()+" n'est plus operateur du channel : "+name+" car "+kicker->getPseudo()+"l'a supprimé de la liste d'operateurs.");
+				(*it)->sendRep(aop, kicker->getPseudo()+"\n"+name+"");
 				it=opChan.erase(it);
 			}
 			else if (kicker != NULL && isop(kicker) == false) {
 				return eNotAutorized;
 			}
 			else {
-				send(oldop , oldop->getPseudo()+" n'est plus operateur du channel : "+name+" car il renonce à ses droits divins.");
+				(*it)->sendRep(aop, kicker->getPseudo()+"\n"+name+"");
+				//send(kicker , name+"\n"+oldop->getPseudo()+"\n"+kicker->getPseudo()+"\n", aop);
 				it=opChan.erase(it);
 			}
 		}
@@ -237,21 +246,22 @@ Client* Channel::isclient(string pseudo) {
  * Dans le cas ou envoyeur vaut NULL : message général du serveur au channel
  */
 void Channel::send(Client* envoyeur, string message, unsigned int coderet) {
-	if (envoyeur == NULL && coderet == 128) {
+	/*if (envoyeur == NULL && coderet == 128) {
 		return ;
-	}
+	}*/
 	list<Client*>::iterator it=clientsChan.begin();
 	list<Client*>::iterator fin=clientsChan.end();
-	if(envoyeur != NULL)
+	//if(envoyeur != NULL)
 		while (it != fin) {
-			(*it)->sendData(message+"\n", coderet);
+			(*it)->sendRep(coderet, message+"\n");
 			++it;
 		}
+	/*
 	else
 		while (it != fin) {
-			(*it)->sendData(name+"\n"+envoyeur->getPseudo()+"\n"+message+"\n", coderet);
+			(*it)->sendRep(coderet, name+"\n"+envoyeur->getPseudo()+"\n"+message+"\n");
 			++it;
-		}
+		}*/
 }
 
 unsigned int Channel::who(string* msgtosend, string pattern) const {
@@ -312,8 +322,11 @@ unsigned int Channel::ban(string *reponse, string pattern, Client * envoyeur, in
 			if(virerClient((*it)->getPseudo(), envoyeur) == eNotAutorized){
 				*reponse =(*reponse)+"Vous n'avez pas de droits sur le channel : "+name+"\n";
 				return eNotAutorized;
-				send(NULL, name+"\n"+(*it)->getPseudo()+"\n"+kicker->getPseudo(), 134);
 			}
+			/// cette ligne prévient le channel a chaque kick
+			/*134: un utilisateur a été kické
+			Arg: le nom du channel, le nick de l'utilisateur kické, le nick du kickeur*/
+			send(NULL, name+"\n"+(*it)->getPseudo()+"\n"+envoyeur->getPseudo(), 134);
 			addBan((*it)->getPseudo());
 			*nbBannis++;
 		}
