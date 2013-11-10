@@ -19,8 +19,6 @@ class Client {
 		vector<string> argsCmd; // Tous les messages recus sont des commandes : la normalisation est faite par le prgmclient
 		uint16_t idCmd;
 		uint8_t codeCmd_ctos;
-		//Pour savoir le nombre d'argument (et gérer les eMissingArg)
-		int nbArg;
 	public:
 		/// Constructeur / Destructeur
 		Client(int socket, string pseudo);

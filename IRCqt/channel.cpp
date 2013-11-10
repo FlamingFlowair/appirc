@@ -103,7 +103,7 @@ unsigned int Channel::virerClient(string patternOldClient, Client* kicker) {
 	while (it != fin) {
 		if (regex_match((*it)->getPseudo(), regex(patternOldClient))) {
 			if (kicker != NULL) {
-				(*it)->sendData("Vous n'êtes plus dans le channel : "+name+" car "+kicker->getPseudo()+" (operateur du channel) vous a kické du channel");
+				(*it)->sendData(name+"\n"+(*it)->getPseudo()+"\n"+kicker->getPseudo()+"\n", 134);
 				if (isop(*it)){
 					virerop(*it);
 				}
@@ -236,17 +236,20 @@ Client* Channel::isclient(string pseudo) {
  * @message : Message à envoyer
  * Dans le cas ou envoyeur vaut NULL : message général du serveur au channel
  */
-void Channel::send(Client* envoyeur, string message) {
+void Channel::send(Client* envoyeur, string message, unsigned int coderet) {
+	if (envoyeur == NULL && coderet == 128) {
+		return ;
+	}
 	list<Client*>::iterator it=clientsChan.begin();
 	list<Client*>::iterator fin=clientsChan.end();
 	if(envoyeur != NULL)
 		while (it != fin) {
-			(*it)->sendData(envoyeur->getPseudo()+" : "+message);
+			(*it)->sendData(message+"\n", coderet);
 			++it;
 		}
 	else
 		while (it != fin) {
-			(*it)->sendData("Serveur : "+message);
+			(*it)->sendData(name+"\n"+envoyeur->getPseudo()+"\n"+message+"\n", coderet);
 			++it;
 		}
 }
@@ -309,6 +312,7 @@ unsigned int Channel::ban(string *reponse, string pattern, Client * envoyeur, in
 			if(virerClient((*it)->getPseudo(), envoyeur) == eNotAutorized){
 				*reponse =(*reponse)+"Vous n'avez pas de droits sur le channel : "+name+"\n";
 				return eNotAutorized;
+				send(NULL, name+"\n"+(*it)->getPseudo()+"\n"+kicker->getPseudo(), 134);
 			}
 			addBan((*it)->getPseudo());
 			*nbBannis++;

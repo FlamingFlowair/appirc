@@ -10,7 +10,7 @@
 using namespace std;
 using namespace ERR;
 
-Client::Client(int socket, string pseudo) :fdSocket(socket), pseudo(pseudo), nbArg(0)
+Client::Client(int socket, string pseudo) :fdSocket(socket), pseudo(pseudo)
 {
 	adeconnecter=false;
 	cout << "Construction client " << pseudo << endl;
@@ -19,42 +19,42 @@ Client::Client(int socket, string pseudo) :fdSocket(socket), pseudo(pseudo), nbA
 /// Le pseudo ne s'affiche pas, wtf ?
 Client::~Client()
 {
-	sendData("Vous avez été déconnecté du serveur");
 	close(fdSocket);
 	cout << "Client détruit " << pseudo << endl;
 }
 
 int Client::getNbArg() const
 {
-	return nbArg;
+	return argsCmd.size();
 }
 
 void Client::readCommande()
 {
+	argsCmd.clear();
 	uint16_t tailleTrame;
 	string argstmp;
 	char buffer[4096]={0}; // il semblerait que l'optimisation fasse en sorte d'utiliser le même buffer d'ou l'initialisation
 	int nblu;
 	nblu=read(fdSocket, &tailleTrame, sizeof(uint16_t));
-	if (nblu < 0) {
-		perror("Erreur lecture taille trame.");
+	if (nblu <= 0) {
+		perror("Erreur lecture taille trame :");
 		adeconnecter=true;
 		return;
 	}
 	nblu=read(fdSocket, &idCmd, sizeof(uint16_t));
-	if (nblu < 0) {
-		perror("Erreur lecture identifiant commande.");
+	if (nblu <= 0) {
+		perror("Erreur lecture identifiant commande :");
 		adeconnecter=true;
 		return;
 	}
 	nblu=read(fdSocket, &codeCmd_ctos, sizeof(uint8_t));
-	if (nblu < 0) {
-		perror("Erreur lecture code commande.");
+	if (nblu <= 0) {
+		perror("Erreur lecture code commande :");
 		adeconnecter=true;
 		return;
 	}
 	nblu=read(fdSocket, buffer, tailleTrame-3);
-	if (nblu < 0) {
+	if (nblu <= 0) {
 		adeconnecter=true;
 		return;
 	}
@@ -65,7 +65,6 @@ void Client::readCommande()
 	int i=0;
 	while (argstmp.length() != 0) {
 		argsCmd.insert(it, argstmp.substr(0, argstmp.find("\n")));
-		nbArg++;
 		argstmp.erase(0, argsCmd[i].length()+1);
 		++it;
 	}

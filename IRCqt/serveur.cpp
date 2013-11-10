@@ -150,7 +150,7 @@ int Serveur::run()
 				++it;
 			}
 			clientsServ.insert(it, nouveauclient);
-			nouveauclient->sendData(messAcc);
+			nouveauclient->sendData(messAcc+"\n", 136);
 		}
 		// cas ou on a quelquechose sur l'entrée standard
 		if (FD_ISSET(STDIN_FILENO, &tmp)) {
@@ -172,14 +172,23 @@ int Serveur::run()
 				(*it)->agir();
 			}
 			if ((*it)->isAdeconnecter() == true) {
+				cout << "1" << endl;
 				ensemblesolide.clr((*it)->getFdclient());
+				cout << "2" << endl;
 				delete (*it);
+				cout << "3" << endl;
 				it=clientsServ.erase(it);
+				cout << "4" << endl;
 			}
-			else
+			else {
 				++it;
+				cout << "5" << endl;
+			}
+			cout << "6" << endl;
 		}
+		cout << "7" << endl;
 	}
+	cout << "8" << endl;
 	return error;
 }
 
@@ -217,13 +226,14 @@ unsigned int Serveur::join(Client* cli, string channelName) {
 
 unsigned int Serveur::unjoin(Client* cli, string channelName) {
 	unsigned retTmp;
-	map<string, Channel*>:: iterator it;
+	map<string, Channel*>::iterator it;
 	it=nomToChannel.find(channelName);
 	if (it == nomToChannel.end()) {
 		return eNotExist;
 	}
 	else {
         retTmp=nomToChannel[channelName]->virerClient(cli);
+		nomToChannel[channelName]->send(NULL, channelName+"\n"+cli->getPseudo(),133);
 		if (nomToChannel[channelName]->getCompt() == 0) {
 			nomToChannel.erase(it);
 		}
@@ -233,13 +243,12 @@ unsigned int Serveur::unjoin(Client* cli, string channelName) {
 }
 
 // MP
-
 unsigned int Serveur::mp(Client* envoyeur, string pseudo, string message) {
 	list<Client*>::iterator it=clientsServ.begin();
 	list<Client*>::iterator fin=clientsServ.end();
 	while(it != fin) {
 		if ((*it)->getPseudo() == pseudo) {
-			(*it)->sendData("MP - "+envoyeur->getPseudo()+" : "+message, 129);
+			(*it)->sendData(envoyeur->getPseudo()+"\n"+message+"\n", 129);
 			return success;
 		}
 		else {
@@ -354,7 +363,7 @@ unsigned int Serveur::msgToChannel(string channelName, string msg, Client* envoy
 	if (itChannel == nomToChannel.end()) {
 		return eNotExist;
 	}
-	nomToChannel[channelName]->send(envoyeur, msg);
+	nomToChannel[channelName]->send(envoyeur, msg);///AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 	return success;
 }
 
@@ -399,7 +408,8 @@ unsigned int Serveur::changerTopic(string channelName, string newTopic, Client *
 	if(nomToChannel[channelName]->isop(envoyeur) == false)
 		return eNotAutorized;
 	nomToChannel[channelName]->setTopic(newTopic);
-	nomToChannel[channelName]->send(NULL,"Le topic du channel est à présent : "+newTopic);
+	//pas de \n ici à la fin puisque il est ajouté dans send()
+	nomToChannel[channelName]->send(NULL,channelName+"\n"+newTopic, 131);
 	*reponse="";
 	return success;
 }
@@ -483,7 +493,7 @@ unsigned int Serveur::nick(string newpseudo, Client * envoyeur)
 	//allez, tout le serveur
 	it=clientsServ.begin();
 	for(; it != fin; ++it) {
-		(*it)->sendData(oldpseudo+"\n"+newpseudo+"\n",132);//conforme au proto
+		(*it)->sendData(oldpseudo+"\n"+newpseudo+"\n",132);
 		}
 	return success;
 }
@@ -542,7 +552,7 @@ unsigned int Serveur::broadcastmsg(string message) const {
 	list<Client*>::const_iterator it=clientsServ.begin();
 	list<Client*>::const_iterator fin=clientsServ.end();
 	for(; it != fin; ++it) {
-		(*it)->sendData(message);
+		(*it)->sendData(message+"\n", 136);
 	}
 	return success;
 }
