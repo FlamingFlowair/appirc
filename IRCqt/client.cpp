@@ -284,6 +284,9 @@ void Client::agir()
 					case eNotExist:
 						sendRep(eNotExist);//, "Aucun channel avec ce nom ou aucun client de ce nom dans le channel");
 						break;
+					case eNotAutorized:
+						sendRep(eNotAutorized);
+						break;
 					default:
 						sendRep(error);//, "Erreur inconnue");
 						break;
