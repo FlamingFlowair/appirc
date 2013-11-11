@@ -349,17 +349,7 @@ unsigned int Serveur::op(string channelName, string pseudo, Client* opper) {
 	if (itChannel == nomToChannel.end()) {
 		return eNotExist;
 	}
-	list<Client*>::iterator it=clientsServ.begin();
-	list<Client*>::iterator fin=clientsServ.end();
-	while(it != fin) {
-		if ((*it)->getPseudo() == pseudo) {
-			return nomToChannel[channelName]->addop((*it) , opper->getPseudo());
-		}
-		else {
-			++it;
-		}
-	}
-	return eNotExist;
+	return nomToChannel[channelName]->addop(opper, pseudo);
 }
 
 
