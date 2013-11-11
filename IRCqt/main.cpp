@@ -1,6 +1,6 @@
 #include "serveur.h"
 
-int main(int argc, char **argv) {
+int main(void) {
 	Serveur* Monserveur=Serveur::getInstance();
 	Monserveur->run();
 	delete Monserveur;

@@ -226,24 +226,24 @@ void Client::agir()
 			break;
 		//pas de message spontané du serveur pour listerChan
 		case 5: {
-				if (getNbArg() < 1) {
-					sendRep(eMissingArg);
+				if (argsCmd[0] == "") {
+					argsCmd[0]="*";
+					//sendRep(eMissingArg);
 				}
-				else {
-					string reponse;
-					switch (srv->listerChan(&reponse, argsCmd[0])) {
-						case success:
-							sendRep(success, reponse);
-							break;
-						case eNotExist:
-							sendRep(eNotExist);//, "Aucun channel ne correspond à : "+argsCmd[0]);
-							break;
-						default:
-							sendRep(error);//, "Erreur inconnue");
-							break;
-					}
+				string reponse;
+				switch (srv->listerChan(&reponse, argsCmd[0])) {
+					case success:
+						sendRep(success, reponse);
+						break;
+					case eNotExist:
+						sendRep(eNotExist);//, "Aucun channel ne correspond à : "+argsCmd[0]);
+						break;
+					default:
+						sendRep(error);//, "Erreur inconnue");
+						break;
 				}
 			}
+			break;
 		//code retour spontané 131 atopic : changement de topic
 		//arg: le channel sur lequel le notic a changé, le nouveau topic
 		case 6: {
