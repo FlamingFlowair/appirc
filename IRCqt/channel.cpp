@@ -75,9 +75,9 @@ unsigned int Channel::virerClient(Client* oldclient) {
 	list<Client*>::iterator fin=clientsChan.end();
 	while (it != fin) {
 		if ((*it)->getFdClient() == oldclient->getFdClient()) {
+			cout << "on le trouve" << endl;
 			if(isop(*it))
-				virerop(*it,NULL);
-			else return eNotAutorized;
+				virerop(*it, *it);
 			--compt;
 			it=clientsChan.erase(it);
 			return success;
@@ -174,7 +174,7 @@ unsigned int Channel::virerop(Client* oldop, Client* kicker) {
 				return eNotAutorized;
 			}
 			else {
-				(*it)->sendRep(aop, kicker->getPseudo()+"\n"+name+"");
+				(*it)->sendRep(aop, oldop->getPseudo()+"\n"+name+"");
 				//send(kicker , name+"\n"+oldop->getPseudo()+"\n"+kicker->getPseudo()+"\n", aop);
 				it=opChan.erase(it);
 			}

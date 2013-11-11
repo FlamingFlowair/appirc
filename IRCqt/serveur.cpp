@@ -229,15 +229,18 @@ unsigned int Serveur::join(Client* cli, string channelName) {
 }
 
 unsigned int Serveur::unjoin(Client* cli, string channelName) {
-	unsigned retTmp;
+	cout << "Bienvenu dans le unjoin" << endl;
+	unsigned int retTmp;
 	map<string, Channel*>::iterator it;
 	it=nomToChannel.find(channelName);
 	if (it == nomToChannel.end()) {
 		return eNotExist;
 	}
 	else {
-        retTmp=nomToChannel[channelName]->virerClient(cli);
-		nomToChannel[channelName]->send(NULL, channelName+"\n"+cli->getPseudo(),133);
+		cout << "Bon, a priori on trouve le channel" << endl;
+		retTmp=nomToChannel[channelName]->virerClient(cli);
+		cout << "On a viré le client" << endl;
+		nomToChannel[channelName]->send(NULL, channelName+"\n"+cli->getPseudo(),aleave);
 		if (nomToChannel[channelName]->getCompt() == 0) {
 			nomToChannel.erase(it);
 		}
@@ -425,8 +428,6 @@ unsigned int Serveur::changerTopic(string channelName, string newTopic, Client *
 //d'arguments? A vérifier -->non, les autres commandes avant devront aussi etre modifiées
 unsigned int Serveur::ban(string *reponse, string patternChan, string patternPseudo, Client *envoyeur)
 {
-	if(envoyeur->getNbArg() < 2)
-		return eMissingArg;
 	string regpattern;
 	size_t place;
 	// On remplace tous les * en .* pour correspondre aux regex C++
