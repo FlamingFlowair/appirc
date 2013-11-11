@@ -45,7 +45,7 @@ class Client {
 		/// Analyse chainecommande et agit en conséquence
 		void agir();
 		/// Envoi une chaine de caractère à un prgmclient
-		void sendRep (uint8_t coderetour, string aenvoyer="");
+		void sendRep(uint8_t coderetour, string aenvoyer="");
 		const vector<string> & getArgsCmd () const;
 };
 

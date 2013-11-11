@@ -255,7 +255,7 @@ unsigned int Serveur::mp(Client* envoyeur, string pseudo, string message) {
 	list<Client*>::iterator fin=clientsServ.end();
 	while(it != fin) {
 		if ((*it)->getPseudo() == pseudo) {
-			(*it)->sendRep(129, envoyeur->getPseudo()+"\n"+message+"\n");
+			(*it)->sendRep(aprivmsg, envoyeur->getPseudo()+"\n"+message+"\n");
 			return success;
 		}
 		else {
