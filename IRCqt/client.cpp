@@ -205,22 +205,21 @@ void Client::agir()
 			break;
 		//pas de message spontané du serveur pour who
 		case 4: {
-				if (getNbArg() < 2) {
-					sendRep(eMissingArg);
-				}
-				else {
-					string reponse;
-					switch (srv->whoChannel(&reponse, argsCmd[0], argsCmd[1])) {
-						case success:
-							sendRep(success);//, reponse);
-							break;
-						case eNotExist:
-							sendRep(eNotExist);//, "Aucun channel ne correspond à : "+argsCmd[0]);
-							break;
-						default:
-							sendRep(error);//, "Erreur inconnue");
-							break;
-					}
+				if (argsCmd[0] == "")
+					argsCmd[0]="*";
+				if (argsCmd[1] == "")
+					argsCmd[1]="*";
+				string reponse;
+				switch (srv->whoChannel(&reponse, argsCmd[0], argsCmd[1])) {
+					case success:
+						sendRep(success, reponse);//, reponse);
+						break;
+					case eNotExist:
+						sendRep(eNotExist);//, "Aucun channel ne correspond à : "+argsCmd[0]);
+						break;
+					default:
+						sendRep(error);//, "Erreur inconnue");
+						break;
 				}
 			}
 			break;

@@ -183,7 +183,7 @@ unsigned int Channel::virerop(Client* oldop, Client* kicker) {
 			++it;
 		}
 	}
-	return error;
+	return eNotExist;
 }
 
 /*

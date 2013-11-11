@@ -408,7 +408,7 @@ unsigned int Serveur::changerTopic(string channelName, string newTopic, Client *
 		return eNotAutorized;
 	nomToChannel[channelName]->setTopic(newTopic);
 	//pas de \n ici à la fin puisque il est ajouté dans send()
-	nomToChannel[channelName]->send(NULL,channelName+"\n"+newTopic, 131);
+	nomToChannel[channelName]->send(NULL,channelName+"\n"+newTopic, atopic);
 	*reponse="";
 	return success;
 }
@@ -451,8 +451,6 @@ unsigned int Serveur::ban(string *reponse, string patternChan, string patternPse
 //le mieux ce serait dans addop et virerop de faire un parcours de opChan
 unsigned int Serveur::deop(string channelName, string pseudo, Client *deopper)
 {
-	if(deopper->getNbArg() < 2)
-		return eMissingArg;
 	map<string, Channel*>:: iterator itChannel;
 	itChannel=nomToChannel.find(channelName);
 	// Cas ou le channel n'existe pas
@@ -474,10 +472,6 @@ unsigned int Serveur::deop(string channelName, string pseudo, Client *deopper)
 
 unsigned int Serveur::nick(string newpseudo, Client * envoyeur)
 {
-	if(envoyeur->getNbArg() == 0)
-		return eMissingArg;
-	if(envoyeur->getNbArg() > 1)
-		return eBadArg;
 	list<Client*>::const_iterator it=clientsServ.begin();
 	list<Client*>::const_iterator fin=clientsServ.end();
 	for(; it != fin; ++it) {
@@ -497,9 +491,6 @@ unsigned int Serveur::nick(string newpseudo, Client * envoyeur)
 
 unsigned int Serveur::unban(string *reponse, string patternChan, string patternPseudo, Client *envoyeur)
 {
-
-	if(envoyeur->getNbArg() < 2)
-		return eMissingArg;
 	string regpattern;
 	size_t place;
 	// On remplace tous les * en .* pour correspondre aux regex C++
@@ -531,10 +522,6 @@ unsigned int Serveur::unban(string *reponse, string patternChan, string patternP
 
 unsigned int Serveur::listerBan(string channelName, string *reponse, Client *envoyeur)
 {
-	if(envoyeur->getNbArg() == 0)
-		return eMissingArg;
-	if(envoyeur->getNbArg() > 1)
-		return eBadArg;
 	map<string, Channel*>:: iterator itChannel;
 	itChannel = nomToChannel.find(channelName);
 	// Cas ou le channel n'existe pas
