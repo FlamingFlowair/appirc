@@ -370,6 +370,7 @@ unsigned int Serveur::msgToChannel(string channelName, string msg, Client* envoy
 unsigned int Serveur::whoChannel(string* msgtosend, string patternChan, string patternClient) const {
 	string regpattern;
 	size_t place;
+	cout<<"1";
 	// On remplace tous les * en .* pour correspondre aux regex C++
 	while ( patternChan.length() != 0) {
 		if ( (place=patternChan.find("*")) != patternChan.npos) {
@@ -381,15 +382,21 @@ unsigned int Serveur::whoChannel(string* msgtosend, string patternChan, string p
 			patternChan.erase(0);
 		}
 	}
+	cout<<"2";
 	map<string, Channel*>::const_iterator it=nomToChannel.begin();
 	for(; it!=nomToChannel.end(); ++it) {
 		if (regex_match(it->first, regex(regpattern))) {
+			cout<<"3";
 			it->second->who(msgtosend, patternClient);
+			cout<<"4";
 		}
 	}
+	cout<<"5";
 	if (msgtosend->length() == 0) {
+		cout<<"6";
 		return eNotExist;
 	}
+	cout<<"7";
 	return success;
 }
 

@@ -312,23 +312,23 @@ unsigned int Channel::ban(string *reponse, string pattern, Client * envoyeur, in
 	}
 	//Cette ligne ajoute simplement le nom du channel avant la liste des nicks
 	//histoire de s'y retrouver.
-	*reponse=(*reponse)+"Bannis de "+name+" : \n";
+	*reponse=(*reponse)+"Clients concernés sur le channel "+name+" : \n";
 	list<Client*>::const_iterator it=clientsChan.begin();
 	list<Client*>::const_iterator fin=clientsChan.end();
 	for(; it!=fin; ++it) {
 		if (regex_match((*it)->getPseudo(), regex(regpattern))) {
-			*reponse=(*reponse)+((*it)->getPseudo())+"\n";
+			*reponse=(*reponse)+((*it)->getPseudo())+" \n";
 			//virer le banni et l'ajouter à la black list
 			if(virerClient((*it)->getPseudo(), envoyeur) == eNotAutorized){
-				*reponse =(*reponse)+"Vous n'avez pas de droits sur le channel : "+name+"\n";
+				*reponse =(*reponse)+" Vous n'avez pas de droits sur le channel : "+name+"\n";
 				return eNotAutorized;
 			}
 			/// cette ligne prévient le channel a chaque kick
 			/*134: un utilisateur a été kické
 			Arg: le nom du channel, le nick de l'utilisateur kické, le nick du kickeur*/
-			send(NULL, name+"\n"+(*it)->getPseudo()+"\n"+envoyeur->getPseudo(), 134);
+			send(NULL, name+"\n"+(*it)->getPseudo()+"\n"+envoyeur->getPseudo(), akick);
 			addBan((*it)->getPseudo());
-			*nbBannis++;
+			(*nbBannis)++;
 		}
 	}
 	if (*nbBannis == memBannis) {
@@ -365,7 +365,7 @@ unsigned int Channel::unban(string *reponse, string pattern, Client *envoyeur, i
 			if(isop(envoyeur) == false)
 				return eNotAutorized;
 			removeBan((*it)->getPseudo());
-			*nbDebannis++;
+			(*nbDebannis)++;
 		}
 	}
 	if (*nbDebannis == memDebannis) {

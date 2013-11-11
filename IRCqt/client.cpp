@@ -148,7 +148,7 @@ void Client::agir()
 		//code retour spontané 129 aprivmsg : envoi d'un message privé
 		//Arg: le nick du client emetteur, le message
 		case 1:
-			if (getNbArg() < 2) {
+			if (argsCmd.size() < 2) {
 				sendRep(eMissingArg);
 			}
 			else {
@@ -167,7 +167,7 @@ void Client::agir()
 		//code retour spontané 128 apubmsg : envoi d'un message par un client à un channel.
 		//Args: le nom du channel, le client émetteur, le message.
 		case 2:
-			if (getNbArg() < 2) {
+			if (argsCmd.size() < 2) {
 				sendRep(eMissingArg);
 			}
 			else {
@@ -186,7 +186,7 @@ void Client::agir()
 			break;
 		//pas de message spontané du serveur pour who
 		case 3: {
-				if (getNbArg() < 1) {
+				if (argsCmd.size() < 1) {
 					sendRep(eMissingArg);
 				}
 				else {
@@ -207,21 +207,22 @@ void Client::agir()
 			break;
 		//pas de message spontané du serveur pour who
 		case 4: {
-				if (argsCmd[0] == "")
-					argsCmd[0]="*";
-				if (argsCmd[1] == "")
-					argsCmd[1]="*";
+			cout<<"case 4"<<endl;
 				string reponse;
-				switch (srv->whoChannel(&reponse, argsCmd[0], argsCmd[1])) {
-					case success:
-						sendRep(success, reponse);//, reponse);
-						break;
-					case eNotExist:
-						sendRep(eNotExist);//, "Aucun channel ne correspond à : "+argsCmd[0]);
-						break;
-					default:
-						sendRep(error);//, "Erreur inconnue");
-						break;
+				if(argsCmd.size() < 2)
+					sendRep(eMissingArg);
+				else {
+					switch (srv->whoChannel(&reponse, argsCmd[0], argsCmd[1])) {
+						case success:
+							sendRep(success, reponse);//, reponse);
+							break;
+						case eNotExist:
+							sendRep(eNotExist);//, "Aucun channel ne correspond à : "+argsCmd[0]);
+							break;
+						default:
+							sendRep(error);//, "Erreur inconnue");
+							break;
+					}
 				}
 			}
 			break;
@@ -248,7 +249,7 @@ void Client::agir()
 		//code retour spontané 131 atopic : changement de topic
 		//arg: le channel sur lequel le notic a changé, le nouveau topic
 		case 6: {
-				if (getNbArg() < 2) {
+				if (argsCmd.size() < 2) {
 					sendRep(eMissingArg);
 				}
 				else {
@@ -273,7 +274,7 @@ void Client::agir()
 		//code retour 134 akick: un utilisateur a été kické
 		//Arg: le nom du channel, le nick de l'utilisateur kické, le nick du kickeur
 		case 7:
-			if (getNbArg() < 2) {
+			if (argsCmd.size() < 2) {
 				sendRep(eMissingArg);
 			}
 			else {
@@ -297,7 +298,7 @@ void Client::agir()
 		//Arg: le nom du channel, + pour un ajout, - pour un retrait,la chaine
 		//qui correspond au ban (un nick ou un motif)
 		case 8: {
-				if (getNbArg() < 2) {
+				if (argsCmd.size() < 2) {
 					sendRep(eMissingArg);
 				}
 				else {
@@ -313,7 +314,7 @@ void Client::agir()
 							sendRep(eMissingArg);//, "Erreur, mauvais nombre d'arguments");
 							break;
 						case eNotAutorized:
-							sendRep(eNotAutorized, reponse+"Vous n'avez pas les droits pour bannir, opération incomplète (Avez vous les droits sur TOUS les channels donnés?)");
+							sendRep(eNotAutorized, reponse+" Vous n'avez pas les droits pour bannir, opération incomplète (Avez vous les droits sur TOUS les channels donnés?)");
 							break;
 						default:
 							sendRep(error, reponse+"Erreur inconnue");
@@ -328,7 +329,7 @@ void Client::agir()
 		Droits (pour le moment un seul, bcp plus sur un vrai irc):
 		o=>op (si pas de o, alors on est pas op)*/
 		case 9:
-			if (getNbArg() < 2) {
+			if (argsCmd.size() < 2) {
 				sendRep(eMissingArg);
 			}
 			else {
@@ -354,7 +355,7 @@ void Client::agir()
 		Droits (pour le moment un seul, bcp plus sur un vrai irc):
 		o=>op (si pas de o, alors on est pas op)*/
 		case 20:
-			if (getNbArg() < 2) {
+			if (argsCmd.size() < 2) {
 				sendRep(eMissingArg);
 			}
 			else {
@@ -380,7 +381,7 @@ void Client::agir()
 		//code de retour 137 ajoin : join (un nouveau client a rejoint le channel)
 		//Arg: le channel, le nick du client.
 		case 21:
-			if (getNbArg() < 1) {
+			if (argsCmd.size() < 1) {
 				sendRep(eMissingArg);
 			}
 				else {
@@ -400,7 +401,7 @@ void Client::agir()
 		//code de retour 132 anick : changement de nick
 		//Arg: l'ancien et le nouveau nick du client
 		case 22:
-			if (getNbArg() < 1) {
+			if (argsCmd.size() < 1) {
 				sendRep(eMissingArg);
 			}
 			else {
@@ -427,7 +428,7 @@ void Client::agir()
 		//Arg: le nom du channel, le nick de l'utilisateur
 		case 23:
 			cout << "Bienvenu dans le cas 23" << endl;
-			if (getNbArg() < 1) {
+			if (argsCmd.size() < 1) {
 				sendRep(eMissingArg);
 			}
 			else {
@@ -448,7 +449,7 @@ void Client::agir()
 		//Arg: le nom du channel, + pour un ajout, - pour un retrait,la chaine
 		//qui correspond au ban (un nick ou un motif)
 		case 24: {
-			if(getNbArg() < 2)
+			if(argsCmd.size() < 2)
 				sendRep(eMissingArg);
 			else {
 				string reponse;
@@ -474,7 +475,7 @@ void Client::agir()
 			break;
 		//pas de message spontané du serveur pour listerBan
 		case 25: {
-			if(getNbArg() < 1)
+			if(argsCmd.size() < 1)
 				sendRep(eMissingArg);
 			else {
 				string reponse;
