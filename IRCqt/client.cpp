@@ -94,7 +94,7 @@ void Client::setIdcmd(uint16_t idCmd) {
 void Client::sendRep(uint8_t coderetour, string aenvoyer)
 {
 	aenvoyer+="\n";
-	int idComSpontane = 65535 ;
+	uint16_t idComSpontane = 65534 ;
 	uint16_t tailleTrame=aenvoyer.size()+3;
 	if (write(fdClient, &tailleTrame, sizeof(uint16_t)) == -1) {
 		perror("Perror_sendMsg write client");
