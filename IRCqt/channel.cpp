@@ -324,13 +324,17 @@ unsigned int Channel::ban(string *reponse, string pattern, Client * envoyeur, in
 				return eNotAutorized;
 			}
 			/// cette ligne prévient le channel a chaque kick
-			/*134: un utilisateur a été kické
-			Arg: le nom du channel, le nick de l'utilisateur kické, le nick du kickeur*/
-			send(NULL, name+"\n"+(*it)->getPseudo()+"\n"+envoyeur->getPseudo(), akick);
+			/*135: un  ban a été ajouté/enlevé
+			Arg: le nom du channel, + pour un ajout, - pour un retrait,la chaine
+			qui correspond au ban (un nick ou un motif)*/
+			send(NULL, name+"\n"+"-"+pattern, aban);
+			cout<<"1"<<endl;
 			addBan((*it)->getPseudo());
 			(*nbBannis)++;
-		}
+			cout<<"2"<<endl;
+		}//PLANTE ICI ENTRE 2 ET 3
 	}
+	cout<<"3";
 	if (*nbBannis == memBannis) {
 		return eNotExist;
 	}
