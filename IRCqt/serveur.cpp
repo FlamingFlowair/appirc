@@ -9,6 +9,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#include <sys/select.h>
 
 #include <netdb.h>
 // include du exit
@@ -22,7 +23,6 @@
 #include <iterator>
 
 #include "err.codes.h"
-#include "ensemble.h"
 
 using namespace ERR;
 using namespace RET;
@@ -119,19 +119,30 @@ int Serveur::getSocketecoute() const {
 void Serveur::setSocketecoute(int socketecoute) {
 	this->fdSocket = socketecoute;
 }
+
+unsigned int Serveur::getmaxfd()
+{
+	unsigned int maxtmp=fdSocket;
+	list<Client*>::const_iterator it=clientsServ.begin();
+	list<Client*>::const_iterator fin=clientsServ.end();
+	for(; it != fin; ++it){
+		if ((unsigned int)(*it)->getFdClient() > maxtmp)
+			maxtmp=(*it)->getFdClient();
+	}
+	return maxtmp;
+}
 /*******************************************/
 
 int Serveur::run()
 {
 	int nbrclirestant;
-	fd_set tmp;
-	Ensemble ensemblesolide;
-	ensemblesolide.add(fdSocket);
-	ensemblesolide.add(STDIN_FILENO);
+	fd_set ensemblesolide, tmp;
+	FD_SET(fdSocket, &ensemblesolide);
+	FD_SET(STDIN_FILENO, &ensemblesolide);
 	for(;;) {
 		// On créé un ensemble temporaire pour le donner au select
-		tmp=ensemblesolide.getfd_set();
-		if ((nbrclirestant=select(ensemblesolide.getmax(), &tmp, NULL, NULL, NULL)) == -1) {
+		tmp=ensemblesolide;
+		if ((nbrclirestant=select(getmaxfd()+1, &tmp, NULL, NULL, NULL)) == -1) {
 			perror("Erreur select");
 			return SELECT_SOCKET;
 		}
@@ -140,18 +151,18 @@ int Serveur::run()
 			// on accepte le client
 			int fdClient=accept(fdSocket, NULL, NULL);
 			// on ajoutele cli ent à la liste des client et à l'ensemble solide
-			ensemblesolide.add(fdClient);
+			FD_SET(fdClient, &ensemblesolide);
 			string pseudo="L33T_80Y";
 			stringstream voila;
-			voila <<pseudo<<ensemblesolide.getmax();
+			voila << pseudo << getmaxfd();
 			Client* nouveauclient=new Client(fdClient, voila.str());
 			list<Client*>::iterator it=clientsServ.begin();
 			list<Client*>::iterator fin=clientsServ.end();
-			while (it!= fin && (*it)->getFdclient() < nouveauclient->getFdclient()) {
+			while (it!= fin && (*it)->getFdClient() < nouveauclient->getFdClient()) {
 				++it;
 			}
 			clientsServ.insert(it, nouveauclient);
-			nouveauclient->sendRep(136, messAcc+"\n");
+			nouveauclient->sendRep(rwall, messAcc);
 		}
 		// cas ou on a quelquechose sur l'entrée standard
 		if (FD_ISSET(STDIN_FILENO, &tmp)) {
@@ -168,28 +179,20 @@ int Serveur::run()
 			  * Lorsqu'il y a quelquechose à faire, on dit au client de lire la commande
 			  * puis d'agir
 			  */
-			if (FD_ISSET((*it)->getFdclient(), &tmp)) {
+			if (FD_ISSET((*it)->getFdClient(), &tmp)) {
 				(*it)->readCommande();
 				(*it)->agir();
 			}
 			if ((*it)->isAdeconnecter() == true) {
-				cout << "1" << endl;
-				ensemblesolide.clr((*it)->getFdclient());
-				cout << "2" << endl;
+				FD_CLR((*it)->getFdClient(), &ensemblesolide);
 				delete (*it);
-				cout << "3" << endl;
 				it=clientsServ.erase(it);
-				cout << "4" << endl;
 			}
 			else {
 				++it;
-				cout << "5" << endl;
 			}
-			cout << "6" << endl;
 		}
-		cout << "7" << endl;
 	}
-	cout << "8" << endl;
 	return error;
 }
 
@@ -359,7 +362,8 @@ unsigned int Serveur::op(string channelName, string pseudo, Client* opper) {
 
 unsigned int Serveur::msgToChannel(string channelName, string msg, Client* envoyeur)
 {
-	map<string, Channel*>:: iterator itChannel;
+	cout << channelName << " " << msg << " " << envoyeur->getPseudo() << endl;
+	map<string, Channel*>::const_iterator itChannel;
 	itChannel=nomToChannel.find(channelName);
 	// Cas ou le channel n'existe pas
 	if (itChannel == nomToChannel.end()) {

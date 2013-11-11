@@ -74,7 +74,7 @@ unsigned int Channel::virerClient(Client* oldclient) {
 	list<Client*>::iterator it=clientsChan.begin();
 	list<Client*>::iterator fin=clientsChan.end();
 	while (it != fin) {
-		if ((*it)->getFdclient() == oldclient->getFdclient()) {
+		if ((*it)->getFdClient() == oldclient->getFdClient()) {
 			if(isop(*it))
 				virerop(*it,NULL);
 			else return eNotAutorized;
@@ -165,7 +165,7 @@ unsigned int Channel::virerop(Client* oldop, Client* kicker) {
 	Droits (pour le moment un seul, bcp plus sur un vrai irc):
 	o=>op (si pas de o, alors on est pas op)*/
 	while (it != fin) {
-		if ((*it)->getFdclient() == oldop->getFdclient()) {
+		if ((*it)->getFdClient() == oldop->getFdClient()) {
 			if (kicker != NULL && isop(kicker)) {
 				(*it)->sendRep(aop, kicker->getPseudo()+"\n"+name+"");
 				it=opChan.erase(it);
@@ -194,7 +194,7 @@ bool Channel::isop(Client* clitotest) {
 	list<Client*>::iterator it=opChan.begin();
 	list<Client*>::iterator fin=opChan.end();
 	while (it != fin) {
-		if ((*it)->getFdclient() == clitotest->getFdclient()) {
+		if ((*it)->getFdClient() == clitotest->getFdClient()) {
 			return true;
 		}
 		else {
@@ -212,7 +212,7 @@ bool Channel::isclient(Client* clitotest) {
 	list<Client*>::iterator it=clientsChan.begin();
 	list<Client*>::iterator fin=clientsChan.end();
 	while (it != fin) {
-		if ((*it)->getFdclient() == clitotest->getFdclient()) {
+		if ((*it)->getFdClient() == clitotest->getFdClient()) {
 			return true;
 		}
 		else {

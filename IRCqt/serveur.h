@@ -33,7 +33,7 @@ class Serveur {
 		Serveur(string hostname="localhost", unsigned int port=42007,  string nom="Anon", string messAcc="Salut bande de pouilleux");
 		/// init le sockaddr_in pour init le serveur
 		void init_sockaddrin(struct sockaddr_in *name, string hostname, uint16_t port);
-
+		unsigned int getmaxfd();
 	public:
 		/// Adresse du serveur, instanciation et destruction
 		static Serveur* _instance ;

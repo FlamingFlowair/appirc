@@ -1,5 +1,5 @@
-#ifndef ERR_CODES
-#define ERR_CODES
+#ifndef CODES
+#define CODES
 
 namespace ERR {
 	enum {success= 0,
@@ -27,4 +27,4 @@ namespace RET {
 		   ajoin = 137
 		 };
 }
-#endif // ERR_CODES
+#endif // CODES

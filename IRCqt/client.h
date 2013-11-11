@@ -9,7 +9,7 @@ using namespace std;
 class Client {
 	private:
 		/// File descriptor du socket en entrée
-		int fdSocket;
+		int fdClient;
 		/// String pseudo, auto attribué par le client
 		string pseudo;
 		/// si ce flag est à  true, il faut virer le client
@@ -30,8 +30,8 @@ class Client {
 		void setAdeconnecter(bool adeconnecter);
 		const string& getChainecommande() const;
 		void setChainecommande(string chainecommande);
-		int getFdclient() const;
-		void setFdclient(int fdSocket);
+		int getFdClient() const;
+		void setFdclient(int fdClient);
 		const string& getPseudo() const;
 		void setPseudo(string pseudo);
 		uint8_t getCodecmd() const;

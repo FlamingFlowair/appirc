@@ -11,16 +11,15 @@ using namespace std;
 using namespace ERR;
 using namespace RET;
 
-Client::Client(int socket, string pseudo) :fdSocket(socket), pseudo(pseudo)
+Client::Client(int socket, string pseudo) :fdClient(socket), pseudo(pseudo)
 {
 	adeconnecter=false;
 	cout << "Construction client " << pseudo << endl;
 }
 
-/// Le pseudo ne s'affiche pas, wtf ?
 Client::~Client()
 {
-	close(fdSocket);
+	close(fdClient);
 	cout << "Client détruit " << pseudo << endl;
 }
 
@@ -36,25 +35,29 @@ void Client::readCommande()
 	string argstmp;
 	char buffer[4096]={0}; // il semblerait que l'optimisation fasse en sorte d'utiliser le même buffer d'ou l'initialisation
 	int nblu;
-	nblu=read(fdSocket, &tailleTrame, sizeof(uint16_t));
-	if (nblu <= 0) {
+	nblu=read(fdClient, &tailleTrame, sizeof(uint16_t));
+	if (nblu == 0 ) {
+		adeconnecter=true;
+		return;
+	}
+	else if (nblu <= 0) {
 		perror("Erreur lecture taille trame :");
 		adeconnecter=true;
 		return;
 	}
-	nblu=read(fdSocket, &idCmd, sizeof(uint16_t));
+	nblu=read(fdClient, &idCmd, sizeof(uint16_t));
 	if (nblu <= 0) {
 		perror("Erreur lecture identifiant commande :");
 		adeconnecter=true;
 		return;
 	}
-	nblu=read(fdSocket, &codeCmd_ctos, sizeof(uint8_t));
+	nblu=read(fdClient, &codeCmd_ctos, sizeof(uint8_t));
 	if (nblu <= 0) {
 		perror("Erreur lecture code commande :");
 		adeconnecter=true;
 		return;
 	}
-	nblu=read(fdSocket, buffer, tailleTrame-3);
+	nblu=read(fdClient, buffer, tailleTrame-3);
 	if (nblu <= 0) {
 		adeconnecter=true;
 		return;
@@ -68,6 +71,7 @@ void Client::readCommande()
 		argsCmd.insert(it, argstmp.substr(0, argstmp.find("\n")));
 		argstmp.erase(0, argsCmd[i].length()+1);
 		++it;
+		++i;
 	}
 }
 
@@ -89,17 +93,18 @@ void Client::setIdcmd(uint16_t idCmd) {
 
 void Client::sendRep(uint8_t coderetour, string aenvoyer)
 {
+	aenvoyer+="\n";
 	uint16_t tailleTrame=aenvoyer.size()+3;
-	if (write(fdSocket, &tailleTrame, sizeof(uint16_t)) == -1) {
+	if (write(fdClient, &tailleTrame, sizeof(uint16_t)) == -1) {
 		perror("Perror_sendMsg write client");
 	}
-	if (write(fdSocket, &idCmd, sizeof(uint16_t)) == -1) {
+	if (write(fdClient, &idCmd, sizeof(uint16_t)) == -1) {
 		perror("Perror_sendMsg write idcmd");
 	}
-	if (write(fdSocket, &coderetour, sizeof(uint8_t)) == -1) {
+	if (write(fdClient, &coderetour, sizeof(uint8_t)) == -1) {
 		perror("Perror_sendMsg write client");
 	}
-	if (write(fdSocket, aenvoyer.c_str(), aenvoyer.size()) == -1) {
+	if (write(fdClient, aenvoyer.c_str(), aenvoyer.size()) == -1) {
 		perror("Perror_sendMsg write client");
 	}
 }
@@ -114,11 +119,11 @@ bool Client::isAdeconnecter() const {
 void Client::setAdeconnecter(bool adeconnecter) {
 	this->adeconnecter = adeconnecter;
 }
-int Client::getFdclient() const {
-	return fdSocket;
+int Client::getFdClient() const {
+	return fdClient;
 }
 void Client::setFdclient(int fdclient) {
-	this->fdSocket = fdclient;
+	this->fdClient = fdclient;
 }
 const string& Client::getPseudo() const {
 	return pseudo;
@@ -161,6 +166,7 @@ void Client::agir()
 					break;
 				case eNotExist:
 					sendRep(eNotExist);//, argsCmd[0]+"n'est pas un channel du serveur.");
+					break;
 				default:
 					sendRep(error);//, "Erreur inconnue");
 					break;
