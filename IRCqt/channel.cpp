@@ -298,7 +298,10 @@ unsigned int Channel::ban(string *reponse, string pattern, Client * envoyeur, in
 {
 	string regpattern;
 	size_t place;
+	unsigned int retour = eNotExist;
 	int memBannis= *nbBannis;
+	string nomDuBanni ;
+	int flag=0;
 	// On remplace tous les * en .* pour correspondre aux regex C++
 	while ( pattern.length() != 0) {
 		if ( (place=pattern.find("*")) != pattern.npos) {
@@ -314,12 +317,18 @@ unsigned int Channel::ban(string *reponse, string pattern, Client * envoyeur, in
 	//histoire de s'y retrouver.
 	*reponse=(*reponse)+"Clients concernés sur le channel "+name+" : \n";
 	list<Client*>::const_iterator it=clientsChan.begin();
+	list<Client*>::const_iterator itmem;
 	list<Client*>::const_iterator fin=clientsChan.end();
-	for(; it!=fin; ++it) {
+	while(it!=fin){
+		itmem=it;
+		itmem++;
 		if (regex_match((*it)->getPseudo(), regex(regpattern))) {
-			*reponse=(*reponse)+((*it)->getPseudo())+" \n";
+			flag++;
+			nomDuBanni=(*it)->getPseudo();
+			*reponse=(*reponse)+nomDuBanni+" \n";
 			//virer le banni et l'ajouter à la black list
-			if(virerClient((*it)->getPseudo(), envoyeur) == eNotAutorized){
+			retour=virerClient(nomDuBanni, envoyeur);
+			if(retour == eNotAutorized){
 				*reponse =(*reponse)+" Vous n'avez pas de droits sur le channel : "+name+"\n";
 				return eNotAutorized;
 			}
@@ -328,13 +337,18 @@ unsigned int Channel::ban(string *reponse, string pattern, Client * envoyeur, in
 			Arg: le nom du channel, + pour un ajout, - pour un retrait,la chaine
 			qui correspond au ban (un nick ou un motif)*/
 			send(NULL, name+"\n"+"-"+pattern, aban);
-			cout<<"1"<<endl;
-			addBan((*it)->getPseudo());
+			addBan(nomDuBanni);
 			(*nbBannis)++;
-			cout<<"2"<<endl;
-		}//PLANTE ICI ENTRE 2 ET 3
+		}
+		if(flag){
+			if(retour == success)
+				it=itmem;
+			else
+				it++;
+		}
+		else it++;
+		flag = 0;
 	}
-	cout<<"3";
 	if (*nbBannis == memBannis) {
 		return eNotExist;
 	}
