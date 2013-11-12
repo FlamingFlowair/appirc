@@ -392,6 +392,9 @@ void Client::agir()
 					case eTopicUnset:
 						sendRep(success);//, "Un channel a été créé, utilisez la commande topic pour définir le topic");
 						break;
+					case eNotAutorized:
+						sendRep(eNotAutorized);
+						break;
 					default:
 						sendRep(error);//, "Erreur inconnue");
 						break;

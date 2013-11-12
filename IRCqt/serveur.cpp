@@ -223,7 +223,7 @@ unsigned int Serveur::join(Client* cli, string channelName) {
 				return retTmp;
 		}
 	}
-	else {//ici : ajouter verif liste des bannis
+	else {
 		return nomToChannel[channelName]->addClient(cli);
 	}
 }
