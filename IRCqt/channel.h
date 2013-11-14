@@ -28,10 +28,10 @@ class Channel {
 		Channel(string name, string topic, Client* Createur);
 		~Channel();
 		/// Getteurs / Setteurs
-		unsigned int getCompt() const;
-		void setCompt(unsigned int compt);
 		const string& getName() const;
 		void setName(string name);
+		unsigned int getCompt() const;
+		void setCompt(unsigned int compt);
 		const string& getTopic() const;
 		void setTopic(string topic);
 

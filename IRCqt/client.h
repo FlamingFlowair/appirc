@@ -14,10 +14,11 @@ class Client {
 		string pseudo;
 		/// si ce flag est à  true, il faut virer le client
 		bool adeconnecter;
-		/// String chainedecommande, récupérée par le read du client
-		/// Utilisé par agir() qui l'analyse et agit en conséquence
-		vector<string> argsCmd; // Tous les messages recus sont des commandes : la normalisation est faite par le prgmclient
+		/// Vector which contains all the arguments of the last read command
+		vector<string> argsCmd;
+		/// Id of the command, inc on each command by the prgmclient
 		uint16_t idCmd;
+		/// Code command from client to server correspond to the
 		uint8_t codeCmd_ctos;
 	public:
 		/// Constructeur / Destructeur
@@ -25,28 +26,25 @@ class Client {
 		~Client();
 
 		/// Getteurs et setteurs
-		int getNbArg()const;
-		bool isAdeconnecter() const;
-		void setAdeconnecter(bool adeconnecter);
-		const string& getChainecommande() const;
-		void setChainecommande(string chainecommande);
 		int getFdClient() const;
 		void setFdclient(int fdClient);
 		const string& getPseudo() const;
 		void setPseudo(string pseudo);
-		uint8_t getCodecmd() const;
-		void setCodecmd(uint8_t codeCmd_ctos);
+		bool isAdeconnecter() const;
+		void setAdeconnecter(bool adeconnecter);
+		const vector<string>& getArgsCmd() const;
 		uint16_t getIdcmd() const;
 		void setIdcmd(uint16_t idCmd);
+		uint8_t getCodecmd() const;
+		void setCodecmd(uint8_t codeCmd_ctos);
 
 		/// Methodes
-		/// Methode appelée par le serveur à la sortie du select
+		/// Lit la trame envoyée par le client
 		void readCommande();
-		/// Analyse chainecommande et agit en conséquence
+		/// Agis en fonction des données envoyées par le client
 		void agir();
-		/// Envoi une chaine de caractère à un prgmclient
+		/// Effectue les envois vers le programme client
 		void sendRep(uint8_t coderetour, string aenvoyer="");
-		const vector<string> & getArgsCmd () const;
 };
 
 #endif // CLIENT_H

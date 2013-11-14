@@ -11,6 +11,8 @@ using namespace std;
 using namespace ERR;
 using namespace RET;
 
+/************************ Constructeur et Destrcteur *****************************/
+
 Client::Client(int socket, string pseudo) :fdClient(socket), pseudo(pseudo)
 {
 	adeconnecter=false;
@@ -23,11 +25,53 @@ Client::~Client()
 	cout << "Destruction client : " << pseudo << endl;
 }
 
-int Client::getNbArg() const
-{
-	return argsCmd.size();
+/**********************************************************************************/
+
+/****************************** Getters and Setters *******************************/
+
+int Client::getFdClient() const {
+	return fdClient;
+}
+void Client::setFdclient(int fdclient) {
+	this->fdClient = fdclient;
+}
+const string& Client::getPseudo() const {
+	return pseudo;
+}
+void Client::setPseudo(string pseudo) {
+	this->pseudo = pseudo;
+}
+bool Client::isAdeconnecter() const {
+	return adeconnecter;
+}
+void Client::setAdeconnecter(bool adeconnecter) {
+	this->adeconnecter = adeconnecter;
+}
+const vector<string>& Client::getArgsCmd() const {
+	return argsCmd;
+}
+uint16_t Client::getIdcmd() const {
+	return idCmd;
+}
+void Client::setIdcmd(uint16_t idCmd) {
+	this->idCmd= idCmd;
+}
+uint8_t Client::getCodecmd() const {
+	return codeCmd_ctos;
+}
+void Client::setCodecmd(uint8_t codeCmd) {
+	this->codeCmd_ctos = codeCmd;
 }
 
+/*********************************************************************************/
+
+
+/*********************************** Methodes ************************************/
+/* Lit la trame envoyée par le client
+ * Description : Lis la trame sur la socket du client en 4 read et scinde la chaine d'argument via les \n
+ * et stock tout dans le tableau argsCmd.
+ * Amélioration : Effectuer uniquement 2 read en utilisant un buffer et découper ensuite le codecmd et l'idcmd
+ */
 void Client::readCommande()
 {
 	cout<<"Client::readCommande"<<endl;
@@ -76,71 +120,11 @@ void Client::readCommande()
 	}
 }
 
-uint8_t Client::getCodecmd() const {
-	return codeCmd_ctos;
-}
-
-void Client::setCodecmd(uint8_t codeCmd) {
-	this->codeCmd_ctos = codeCmd;
-}
-
-uint16_t Client::getIdcmd() const {
-	return idCmd;
-}
-
-void Client::setIdcmd(uint16_t idCmd) {
-	this->idCmd= idCmd;
-}
-
-void Client::sendRep(uint8_t coderetour, string aenvoyer)
-{
-	cout<<"Client::sendRep"<<endl;
-	aenvoyer+="\n";
-	//uint16_t idComSpontane = 65534 ;
-	uint16_t tailleTrame=aenvoyer.size()+3;
-	if (write(fdClient, &tailleTrame, sizeof(uint16_t)) == -1) {
-		perror("Perror_sendMsg write client");
-	}
-	//if(coderetour > 127)
-	if (write(fdClient, &idCmd, sizeof(uint16_t)) == -1) {
-		perror("Perror_sendMsg write idcmd");
-	}
-	if (write(fdClient, &coderetour, sizeof(uint8_t)) == -1) {
-		perror("Perror_sendMsg write client");
-	}
-	if (write(fdClient, aenvoyer.c_str(), aenvoyer.size()) == -1) {
-		perror("Perror_sendMsg write client");
-	}
-}
-
-const vector<string>& Client::getArgsCmd() const {
-	return argsCmd;
-}
-
-bool Client::isAdeconnecter() const {
-	return adeconnecter;
-}
-void Client::setAdeconnecter(bool adeconnecter) {
-	this->adeconnecter = adeconnecter;
-}
-int Client::getFdClient() const {
-	return fdClient;
-}
-void Client::setFdclient(int fdclient) {
-	this->fdClient = fdclient;
-}
-const string& Client::getPseudo() const {
-	return pseudo;
-}
-void Client::setPseudo(string pseudo) {
-	this->pseudo = pseudo;
-}
-
-
-
-
-/*************************************/
-
+/* Agis en fonction des données envoyées par le client
+ * Description /!\ Cette fonction contient des élément capables de faire crier vos yeux !
+ * Switch sur le code de la commande envoyée par le client afin d'appeler les bonnes fonctions du serveur
+ * Switch sur le code de retour de ces fonctions pour effectuer le retour vers le client
+ */
 void Client::agir()
 {
 	cout<<"Client::agir"<<endl;
@@ -506,3 +490,34 @@ void Client::agir()
 }
 
 /************************************/
+
+/* Effectue les envois vers le programme client
+ * @param uint8_t coderetour : code de retour à envoyer au client
+ * @param string aenvoyer : contient le message a envoyer si nécessaire
+ *							Défaut : chaine vide
+ * Description : effectue 4 write
+ * Améliorations possibles : créer une structure pour faire un seul appel sys au write
+ *							 envoyer un idcmd constant et unique lorsque la fonction est
+ *							 utilisé avec un code de type rwall etc
+ */
+void Client::sendRep(uint8_t coderetour, string aenvoyer)
+{
+	cout<<"Client::sendRep"<<endl;
+	aenvoyer+="\n";
+	//uint16_t idComSpontane = 65534;
+	uint16_t tailleTrame=aenvoyer.size()+3;
+	if (write(fdClient, &tailleTrame, sizeof(uint16_t)) == -1) {
+		perror("Perror_sendMsg write client");
+	}
+	//if(coderetour > 127)
+	if (write(fdClient, &idCmd, sizeof(uint16_t)) == -1) {
+		perror("Perror_sendMsg write idcmd");
+	}
+	if (write(fdClient, &coderetour, sizeof(uint8_t)) == -1) {
+		perror("Perror_sendMsg write client");
+	}
+	if (write(fdClient, aenvoyer.c_str(), aenvoyer.size()) == -1) {
+		perror("Perror_sendMsg write client");
+	}
+}
+/*********************************************************************************/
