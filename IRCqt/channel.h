@@ -7,7 +7,7 @@
 #include <string>
 using namespace std;
 
-class Serveur;
+//class Serveur;
 
 class Channel {
 	private:
@@ -26,7 +26,7 @@ class Channel {
 	public:
 		/// Constructeur / Destructeur
 		Channel(string name, string topic, Client* Createur);
-
+		~Channel();
 		/// Getteurs / Setteurs
 		unsigned int getCompt() const;
 		void setCompt(unsigned int compt);
@@ -62,7 +62,7 @@ class Channel {
 		///appelée pour commande listBan
 		void listBan(string *reponse);
 		/// Enverras le message à tous les utilisateurs du channel
-		void send(Client* envoyeur, string message, unsigned int coderet);
+		void send(string message, unsigned int coderet);
 
 };
 

@@ -135,6 +135,7 @@ unsigned int Serveur::getmaxfd()
 
 int Serveur::run()
 {
+	cout<<"Serveur::run"<<endl;
 	int nbrclirestant;
 	fd_set ensemblesolide, tmp;
 	FD_SET(fdSocket, &ensemblesolide);
@@ -168,8 +169,10 @@ int Serveur::run()
 		if (FD_ISSET(STDIN_FILENO, &tmp)) {
 			string entree;
 			cin >> entree;
-			if (entree == "quit")
+			if (entree == "quit"){
+				//close(fdSocket); //déjà fait dans le destructeur
 				return 0;
+			}
 		}
 		// creation des deux iterateurs de parcours
 		list<Client*>::iterator it=clientsServ.begin();
@@ -196,7 +199,9 @@ int Serveur::run()
 	return error;
 }
 
-unsigned int Serveur::addchannel(Client* createur, string channelname, string topic) {
+unsigned int Serveur::addchannel(Client* createur, string channelname, string topic)
+{
+	cout<<"Serveur::addchannel"<<endl;
 	Channel* tmp=new Channel(channelname, topic, createur);
 	pair<string, Channel*> mapaire(tmp->getName(), tmp);
 	pair< map<string, Channel*>::iterator, bool> paire;
@@ -210,7 +215,9 @@ unsigned int Serveur::addchannel(Client* createur, string channelname, string to
 	return error;
 }
 
-unsigned int Serveur::join(Client* cli, string channelName) {
+unsigned int Serveur::join(Client* cli, string channelName)
+{
+	cout<<"Serveur::join"<<endl;
 	unsigned int retTmp;
 	map<string, Channel*>::iterator it;
 	it=nomToChannel.find(channelName);
@@ -228,8 +235,9 @@ unsigned int Serveur::join(Client* cli, string channelName) {
 	}
 }
 
-unsigned int Serveur::unjoin(Client* cli, string channelName) {
-	cout << "Bienvenu dans le unjoin" << endl;
+unsigned int Serveur::unjoin(Client* cli, string channelName)
+{
+	cout << "Serveur::unjoin" << endl;
 	unsigned int retTmp;
 	map<string, Channel*>::iterator it;
 	it=nomToChannel.find(channelName);
@@ -237,11 +245,10 @@ unsigned int Serveur::unjoin(Client* cli, string channelName) {
 		return eNotExist;
 	}
 	else {
-		cout << "Bon, a priori on trouve le channel" << endl;
 		retTmp=nomToChannel[channelName]->virerClient(cli);
-		cout << "On a viré le client" << endl;
-		nomToChannel[channelName]->send(NULL, channelName+"\n"+cli->getPseudo(),aleave);
+		nomToChannel[channelName]->send(channelName+"\n"+cli->getPseudo(),aleave);
 		if (nomToChannel[channelName]->getCompt() == 0) {
+			cout << "Destruction channel : " + channelName << endl;
 			nomToChannel.erase(it);
 		}
 		return retTmp;
@@ -250,7 +257,9 @@ unsigned int Serveur::unjoin(Client* cli, string channelName) {
 }
 
 // MP
-unsigned int Serveur::mp(Client* envoyeur, string pseudo, string message) {
+unsigned int Serveur::mp(Client* envoyeur, string pseudo, string message)
+{
+	cout<<"Serveur::mp"<<endl;
 	list<Client*>::iterator it=clientsServ.begin();
 	list<Client*>::iterator fin=clientsServ.end();
 	while(it != fin) {
@@ -265,7 +274,9 @@ unsigned int Serveur::mp(Client* envoyeur, string pseudo, string message) {
 	return eNotExist;
 }
 
-unsigned int Serveur::who(string* msgtosend, string pattern) const {
+unsigned int Serveur::who(string* msgtosend, string pattern) const
+{
+	cout<<"Serveur::who"<<endl;
 	string regpattern;
 	size_t place;
 	// On remplace tous les * en .* pour correspondre aux regex C++
@@ -292,7 +303,9 @@ unsigned int Serveur::who(string* msgtosend, string pattern) const {
 	return success;
 }
 
-unsigned int Serveur::listerChan(string* msgtosend, string patternChannelName) const {
+unsigned int Serveur::listerChan(string* msgtosend, string patternChannelName) const
+{
+	cout<<"Serveur::listerChan"<<endl;
 	string regpattern;
 	size_t place;
 	// On remplace tous les * en .* pour correspondre aux regex C++
@@ -319,7 +332,9 @@ unsigned int Serveur::listerChan(string* msgtosend, string patternChannelName) c
 	return success;
 }
 
-unsigned int Serveur::kickFromChan(string channelName, string patternPseudo, Client* kicker) {
+unsigned int Serveur::kickFromChan(string channelName, string patternPseudo, Client* kicker)
+{
+	cout<<"Serveur::kickFromChan"<<endl;
 	string regpattern;
 	size_t place;
 	map<string, Channel*>:: iterator it;
@@ -342,32 +357,36 @@ unsigned int Serveur::kickFromChan(string channelName, string patternPseudo, Cli
 	return nomToChannel[channelName]->virerClient(regpattern, kicker);
 }
 
-unsigned int Serveur::op(string channelName, string pseudo, Client* opper) {
+unsigned int Serveur::op(string channelName, string pseudo, Client* opper)
+{
+	cout<<"Serveur::op"<<endl;
 	map<string, Channel*>:: iterator itChannel;
 	itChannel=nomToChannel.find(channelName);
 	// Cas ou le channel n'existe pas
-	if (itChannel == nomToChannel.end()) {
+	if (itChannel == nomToChannel.end())
 		return eNotExist;
-	}
 	return nomToChannel[channelName]->addop(opper, pseudo);
 }
 
 
 unsigned int Serveur::msgToChannel(string channelName, string msg, Client* envoyeur)
 {
-	cout << channelName << " " << msg << " " << envoyeur->getPseudo() << endl;
+	cout<<"Serveur::msgToChannel"<<endl;
+	cout << "->" <<channelName << " : " << envoyeur->getPseudo() << " - " << msg <<  endl;
 	map<string, Channel*>::const_iterator itChannel;
 	itChannel=nomToChannel.find(channelName);
 	// Cas ou le channel n'existe pas
 	if (itChannel == nomToChannel.end()) {
 		return eNotExist;
 	}
-	nomToChannel[channelName]->send(envoyeur, msg, apubmsg);
+	nomToChannel[channelName]->send(msg, apubmsg);
 	return success;
 }
 
 
-unsigned int Serveur::whoChannel(string* msgtosend, string patternChan, string patternClient) const {
+unsigned int Serveur::whoChannel(string* msgtosend, string patternChan, string patternClient) const
+{
+	cout<<"Serveur::whoChannel"<<endl;
 	string regpattern;
 	size_t place;
 	// On remplace tous les * en .* pour correspondre aux regex C++
@@ -395,6 +414,7 @@ unsigned int Serveur::whoChannel(string* msgtosend, string patternChan, string p
 
 unsigned int Serveur::changerTopic(string channelName, string newTopic, Client * envoyeur, string * reponse)
 {
+	cout<<"Serveur::changerTopic"<<endl;
 	map<string, Channel*>:: iterator itChannel;
 	itChannel=nomToChannel.find(channelName);
 	// Cas ou le channel n'existe pas
@@ -408,7 +428,7 @@ unsigned int Serveur::changerTopic(string channelName, string newTopic, Client *
 		return eNotAutorized;
 	nomToChannel[channelName]->setTopic(newTopic);
 	//pas de \n ici à la fin puisque il est ajouté dans send()
-	nomToChannel[channelName]->send(NULL,channelName+"\n"+newTopic, atopic);
+	nomToChannel[channelName]->send(channelName+"\n"+newTopic, atopic);
 	*reponse="";
 	return success;
 }
@@ -418,6 +438,7 @@ unsigned int Serveur::changerTopic(string channelName, string newTopic, Client *
 //d'arguments? A vérifier -->non, les autres commandes avant devront aussi etre modifiées
 unsigned int Serveur::ban(string *reponse, string patternChan, string patternPseudo, Client *envoyeur)
 {
+	cout<<"Serveur::ban"<<endl;
 	string regpattern;
 	size_t place;
 	// On remplace tous les * en .* pour correspondre aux regex C++
@@ -451,12 +472,12 @@ unsigned int Serveur::ban(string *reponse, string patternChan, string patternPse
 //le mieux ce serait dans addop et virerop de faire un parcours de opChan
 unsigned int Serveur::deop(string channelName, string pseudo, Client *deopper)
 {
+	cout<<"Serveur::deop"<<endl;
 	map<string, Channel*>:: iterator itChannel;
 	itChannel=nomToChannel.find(channelName);
 	// Cas ou le channel n'existe pas
-	if (itChannel == nomToChannel.end()) {
+	if (itChannel == nomToChannel.end())
 		return eNotExist;
-	}
 	list<Client*>::iterator it=clientsServ.begin();
 	list<Client*>::iterator fin=clientsServ.end();
 	while(it != fin) {
@@ -472,6 +493,7 @@ unsigned int Serveur::deop(string channelName, string pseudo, Client *deopper)
 
 unsigned int Serveur::nick(string newpseudo, Client * envoyeur)
 {
+	cout<<"Serveur::nick"<<endl;
 	list<Client*>::const_iterator it=clientsServ.begin();
 	list<Client*>::const_iterator fin=clientsServ.end();
 	for(; it != fin; ++it) {
@@ -491,6 +513,7 @@ unsigned int Serveur::nick(string newpseudo, Client * envoyeur)
 
 unsigned int Serveur::unban(string *reponse, string patternChan, string patternPseudo, Client *envoyeur)
 {
+	cout<<"Serveur::unban"<<endl;
 	string regpattern;
 	size_t place;
 	// On remplace tous les * en .* pour correspondre aux regex C++
@@ -520,8 +543,9 @@ unsigned int Serveur::unban(string *reponse, string patternChan, string patternP
 	return success;
 }
 
-unsigned int Serveur::listerBan(string channelName, string *reponse, Client *envoyeur)
+unsigned int Serveur::listerBan(string channelName, string *reponse)
 {
+	cout<<"Serveur::listerBan"<<endl;
 	map<string, Channel*>:: iterator itChannel;
 	itChannel = nomToChannel.find(channelName);
 	// Cas ou le channel n'existe pas
@@ -533,6 +557,7 @@ unsigned int Serveur::listerBan(string channelName, string *reponse, Client *env
 }
 
 unsigned int Serveur::broadcastmsg(string message) const {
+	cout<<"Serveur::broadcastmsg"<<endl;
 	list<Client*>::const_iterator it=clientsServ.begin();
 	list<Client*>::const_iterator fin=clientsServ.end();
 	for(; it != fin; ++it) {

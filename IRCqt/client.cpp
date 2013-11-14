@@ -14,13 +14,13 @@ using namespace RET;
 Client::Client(int socket, string pseudo) :fdClient(socket), pseudo(pseudo)
 {
 	adeconnecter=false;
-	cout << "Construction client " << pseudo << endl;
+	cout << "Création client : " << pseudo << endl;
 }
 
 Client::~Client()
 {
 	close(fdClient);
-	cout << "Client détruit " << pseudo << endl;
+	cout << "Destruction client : " << pseudo << endl;
 }
 
 int Client::getNbArg() const
@@ -30,6 +30,7 @@ int Client::getNbArg() const
 
 void Client::readCommande()
 {
+	cout<<"Client::readCommande"<<endl;
 	argsCmd.clear();
 	uint16_t tailleTrame;
 	string argstmp;
@@ -93,6 +94,7 @@ void Client::setIdcmd(uint16_t idCmd) {
 
 void Client::sendRep(uint8_t coderetour, string aenvoyer)
 {
+	cout<<"Client::sendRep"<<endl;
 	aenvoyer+="\n";
 	//uint16_t idComSpontane = 65534 ;
 	uint16_t tailleTrame=aenvoyer.size()+3;
@@ -141,6 +143,7 @@ void Client::setPseudo(string pseudo) {
 
 void Client::agir()
 {
+	cout<<"Client::agir"<<endl;
 	Serveur* srv=Serveur::getInstance();
 	/// ANALYSE DE CHAINE COMMANDE
 	/// Commande join
@@ -207,7 +210,6 @@ void Client::agir()
 			break;
 		//pas de message spontané du serveur pour who
 		case 4: {
-			cout<<"case 4"<<endl;
 				string reponse;
 				if(argsCmd.size() < 2)
 					sendRep(eMissingArg);
@@ -430,7 +432,6 @@ void Client::agir()
 		//code de retour 133 aleave : un utilisateur a quitté le channel
 		//Arg: le nom du channel, le nick de l'utilisateur
 		case 23:
-			cout << "Bienvenu dans le cas 23" << endl;
 			if (argsCmd.size() < 1) {
 				sendRep(eMissingArg);
 			}
@@ -482,7 +483,7 @@ void Client::agir()
 				sendRep(eMissingArg);
 			else {
 				string reponse;
-				switch (srv->listerBan(argsCmd[0], &reponse, this)) {
+				switch (srv->listerBan(argsCmd[0], &reponse)) {
 					case success:
 						sendRep(success, reponse);
 						break;

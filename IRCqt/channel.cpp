@@ -43,6 +43,7 @@ void Channel::setTopic(string topic) {
 
 void Channel::addBan(string pseudo)
 {
+	cout<<"Channel::addBan"<<endl;
 	list<string>::iterator it=find(bannis.begin(), bannis.end(), pseudo);
 	if(it == bannis.end())
 		bannis.push_front(pseudo);
@@ -50,12 +51,14 @@ void Channel::addBan(string pseudo)
 
 void Channel::removeBan(string pseudo)
 {
+	cout<<"Channel::removeBan"<<endl;
 	list<string>::iterator it = find(bannis.begin(), bannis.end(), pseudo);
 	if(it != bannis.end())
 		bannis.erase(it);
 }
 
 unsigned int Channel::addClient(Client* newclient) {
+	cout<<"Channel::addClient"<<endl;
 	if(!isclient(newclient)){
 		if(bannis.end() == find(bannis.begin(), bannis.end(), newclient->getPseudo()))
 			clientsChan.push_back(newclient);
@@ -71,11 +74,11 @@ unsigned int Channel::addClient(Client* newclient) {
 //premiere fonction virerClient()
 //est-ce que il ne faudrait pas le virer aussi de list op? Si.
 unsigned int Channel::virerClient(Client* oldclient) {
+	cout<<"Channel::virerClient(Client*)"<<endl;
 	list<Client*>::iterator it=clientsChan.begin();
 	list<Client*>::iterator fin=clientsChan.end();
 	while (it != fin) {
 		if ((*it)->getFdClient() == oldclient->getFdClient()) {
-			cout << "on le trouve" << endl;
 			if(isop(*it))
 				virerop(*it, *it);
 			--compt;
@@ -95,6 +98,7 @@ unsigned int Channel::virerClient(Client* oldclient) {
  * @kicker : pointeur sur l'operateur qui vire le client défaut : NULL
  */
 unsigned int Channel::virerClient(string patternOldClient, Client* kicker) {
+	cout<<"Channel::virerClient(string, Client*)"<<endl;
 	unsigned int i=0;
 	if (kicker != NULL && isop(kicker) == false) {
 		return eNotAutorized;
@@ -104,7 +108,7 @@ unsigned int Channel::virerClient(string patternOldClient, Client* kicker) {
 	while (it != fin) {
 		if (regex_match((*it)->getPseudo(), regex(patternOldClient))) {
 			if (kicker != NULL) {
-				send(kicker, name+"\n"+(*it)->getPseudo()+"\n"+kicker->getPseudo()+"\n", akick);
+				send(name+"\n"+(*it)->getPseudo()+"\n"+kicker->getPseudo()+"\n", akick);
 				if (isop(*it)){
 					virerop(*it);
 				}
@@ -136,6 +140,7 @@ unsigned int Channel::virerClient(string patternOldClient, Client* kicker) {
  * @newop : pointeur sur le client a ajouter à la liste d'operateur
  */
 unsigned int Channel::addop(Client* oldop, string newop) {
+	cout<<"Channel::addop"<<endl;
 	Client* newopptr;
 	if  (isop(oldop) == false) {
 		return eNotAutorized;
@@ -157,6 +162,7 @@ unsigned int Channel::addop(Client* oldop, string newop) {
  * @kicker : pointeur sur l'operateur qui vire le client défaut : NULL
  */
 unsigned int Channel::virerop(Client* oldop, Client* kicker) {
+	cout<<"Channel::virerop"<<endl;
 	list<Client*>::iterator it=opChan.begin();
 	list<Client*>::iterator fin=opChan.end();
 	/*code de retour 130 aop : changement de droit
@@ -167,16 +173,17 @@ unsigned int Channel::virerop(Client* oldop, Client* kicker) {
 	while (it != fin) {
 		if ((*it)->getFdClient() == oldop->getFdClient()) {
 			if (kicker != NULL && isop(kicker)) {
-				(*it)->sendRep(aop, kicker->getPseudo()+"\n"+name+"");
+				(*it)->sendRep(aop, kicker->getPseudo()+"\n"+name+"\n");
 				it=opChan.erase(it);
+				return success;
 			}
 			else if (kicker != NULL && isop(kicker) == false) {
 				return eNotAutorized;
 			}
-			else {
-				(*it)->sendRep(aop, oldop->getPseudo()+"\n"+name+"");
-				//send(kicker , name+"\n"+oldop->getPseudo()+"\n"+kicker->getPseudo()+"\n", aop);
+			else {//kicker is NULL
+				(*it)->sendRep(aop, oldop->getPseudo()+"\n"+name+"\n");
 				it=opChan.erase(it);
+				return success;
 			}
 		}
 		else {
@@ -209,6 +216,7 @@ bool Channel::isop(Client* clitotest) {
  * @clitotest : pointeur sur le client à tester
  */
 bool Channel::isclient(Client* clitotest) {
+	cout<<"Channel::is client(Client *)"<<endl;
 	list<Client*>::iterator it=clientsChan.begin();
 	list<Client*>::iterator fin=clientsChan.end();
 	while (it != fin) {
@@ -227,6 +235,7 @@ bool Channel::isclient(Client* clitotest) {
  * @clitotest : string : pseudo du client à tester
  */
 Client* Channel::isclient(string pseudo) {
+	cout<<"Channel::isclient(string)"<<endl;
 	list<Client*>::iterator it=clientsChan.begin();
 	list<Client*>::iterator fin=clientsChan.end();
 	while (it != fin) {
@@ -243,28 +252,19 @@ Client* Channel::isclient(string pseudo) {
 /*
  * Description : Envoie un message à tous les clients du channel
  * @message : Message à envoyer
- * Dans le cas ou envoyeur vaut NULL : message général du serveur au channel
  */
-void Channel::send(Client* envoyeur, string message, unsigned int coderet) {
-	/*if (envoyeur == NULL && coderet == 128) {
-		return ;
-	}*/
+void Channel::send(string message, unsigned int coderet) {
+	cout<<"Channel::send"<<endl;
 	list<Client*>::iterator it=clientsChan.begin();
 	list<Client*>::iterator fin=clientsChan.end();
-	//if(envoyeur != NULL)
 		while (it != fin) {
 			(*it)->sendRep(coderet, message+"\n");
 			++it;
 		}
-	/*
-	else
-		while (it != fin) {
-			(*it)->sendRep(coderet, name+"\n"+envoyeur->getPseudo()+"\n"+message+"\n");
-			++it;
-		}*/
 }
 
 unsigned int Channel::who(string* msgtosend, string pattern) const {
+	cout<<"Channel::who"<<endl;
 	string regpattern;
 	size_t place;
 	// On remplace tous les * en .* pour correspondre aux regex C++
@@ -296,6 +296,7 @@ unsigned int Channel::who(string* msgtosend, string pattern) const {
 
 unsigned int Channel::ban(string *reponse, string pattern, Client * envoyeur, int *nbBannis)
 {
+	cout<<"Channel::ban"<<endl;
 	string regpattern;
 	size_t place;
 	unsigned int retour = eNotExist;
@@ -336,7 +337,7 @@ unsigned int Channel::ban(string *reponse, string pattern, Client * envoyeur, in
 			/*135: un  ban a été ajouté/enlevé
 			Arg: le nom du channel, + pour un ajout, - pour un retrait,la chaine
 			qui correspond au ban (un nick ou un motif)*/
-			send(NULL, name+"\n"+"-"+pattern, aban);
+			send(name+"\n"+"-"+pattern, aban);
 			addBan(nomDuBanni);
 			(*nbBannis)++;
 		}
@@ -357,9 +358,12 @@ unsigned int Channel::ban(string *reponse, string pattern, Client * envoyeur, in
 
 unsigned int Channel::unban(string *reponse, string pattern, Client *envoyeur, int *nbDebannis)
 {
+	cout<<"Channel::unban"<<endl;
 	string regpattern;
 	size_t place;
 	int memDebannis= *nbDebannis;
+	string nomDuBanni ;
+	int flag=0;
 	// On remplace tous les * en .* pour correspondre aux regex C++
 	while ( pattern.length() != 0) {
 		if ( (place=pattern.find("*")) != pattern.npos) {
@@ -374,17 +378,27 @@ unsigned int Channel::unban(string *reponse, string pattern, Client *envoyeur, i
 	//Cette ligne ajoute simplement le nom du channel avant la liste des nicks
 	//histoire de s'y retrouver.
 	*reponse=(*reponse)+"Débannis de "+name+" : \n";
-	list<Client*>::const_iterator it=clientsChan.begin();
-	list<Client*>::const_iterator fin=clientsChan.end();
-	for(; it!=fin; ++it) {
-		if (regex_match((*it)->getPseudo(), regex(regpattern))) {
-			*reponse=(*reponse)+((*it)->getPseudo())+"\n";
+	list<string>::const_iterator it = bannis.begin();
+	//mettre un it tmp memoire pour eviter segfault
+	list<string>::const_iterator itmem;
+	list<string>::const_iterator fin = bannis.end();
+	while(it!=fin){
+		itmem=it;
+		itmem++;
+		if (regex_match(*it, regex(regpattern))) {
+			flag++;
+			*reponse=(*reponse)+(*it)+"\n";
 			//enlever le banni de la black list
 			if(isop(envoyeur) == false)
 				return eNotAutorized;
-			removeBan((*it)->getPseudo());
+			removeBan((*it));
 			(*nbDebannis)++;
 		}
+		if(flag)
+				it=itmem;
+		else
+				it++;
+		flag = 0;
 	}
 	if (*nbDebannis == memDebannis) {
 		return eNotExist;
@@ -394,6 +408,7 @@ unsigned int Channel::unban(string *reponse, string pattern, Client *envoyeur, i
 
 void Channel::listBan(string *reponse)
 {
+	cout<<"Channel::listBan"<<endl;
 	list<string>::const_iterator it=bannis.begin();
 	list<string>::const_iterator fin=bannis.end();
 	for(; it!=fin; ++it) {

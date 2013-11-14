@@ -85,7 +85,7 @@ class Serveur {
 		//unban un client ou un pattern d'un channel
 		unsigned int unban(string *reponse, string patternChan, string patternPseudo, Client * envoyeur);
 		//lister les bans d'un channel
-		unsigned int listerBan(string channelName, string * reponse, Client *envoyeur);
+		unsigned int listerBan(string channelName, string * reponse);
 		//message général du serveur aux clients
 		unsigned int broadcastmsg(string message) const;
 		/// Gere le serveur
