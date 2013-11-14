@@ -30,10 +30,10 @@ class Channel {
 		/// Getteurs / Setteurs
 		const string& getName() const;
 		void setName(string name);
-		unsigned int getCompt() const;
-		void setCompt(unsigned int compt);
 		const string& getTopic() const;
 		void setTopic(string topic);
+		unsigned int getCompt() const;
+		void setCompt(unsigned int compt);
 
 		// Ajouter un client à la black list
 		void addBan(string pseudo);
@@ -41,8 +41,9 @@ class Channel {
 		void removeBan(string pseudo);
 		/// Ajouter un client à listecli_chan
 		unsigned int addClient(Client* newclient);
-		/// Virer un client à la listecli_chan
+		/// Virer un client de la listecli_chan cas du kick
 		unsigned int virerClient(string patternOldClient, Client* kicker);
+		/// Virer un client de la listecli_chan cas du leave
 		unsigned int virerClient(Client* oldclient);
 		/// Ajouter un client à listeop
 		unsigned int addop(Client* oldop, string newop);

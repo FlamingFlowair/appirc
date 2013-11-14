@@ -1,3 +1,12 @@
+/*						 _________________
+ *				\|/		/				  \
+ *			 /'''''''\ /	Uhhhhhhhh !!  |
+ *			 | °  °	 | ''\________________/
+ *			 |		 |
+ *		nnn	 | `---	 |  nnn
+ * ''''''''''''''''''''''''''''
+*/
+
 #include "channel.h"
 #include "codes.h"
 using namespace ERR;
@@ -20,26 +29,22 @@ Channel::Channel(string name, string topic, Client* createur)
 unsigned int Channel::getCompt() const {
 	return compt;
 }
-
 void Channel::setCompt(unsigned int compt) {
 	this->compt = compt;
 }
-
 const string& Channel::getName() const {
 	return name;
 }
-
 void Channel::setName(string name) {
 	this->name = name;
 }
-
 const string & Channel::getTopic() const {
 	return topic;
 }
-
 void Channel::setTopic(string topic) {
 	this->topic = topic;
 }
+
 
 void Channel::addBan(string pseudo)
 {
