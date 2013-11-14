@@ -1,43 +1,48 @@
 #ifndef SERVEUR_H
 #define SERVEUR_H
 
-/// déclaration des uint32_t, uint16_t ...
+/// Inclusion des uint32_t, uint16_t ...
 #include <stdint.h>
 
+/// Inclusion des éléments de la stl
 #include <list>
 #include <map>
 #include <string>
 using namespace std;
 
+/// Inclusion des autre classes de l'IRC
 #include "channel.h"
 #include "client.h"
 
 class Serveur {
 	private:
-		/// Hostname
+		/// Nom (resolved by gethostbyname to get the IP adress)
 		string hostname;
 		/// Port
 		unsigned int port;
-		/// Nom du serveur
+		/// Name of the serveur
 		string nom;
-		/// Message d'acceuil du serveur
+		/// Greeting message
 		string messAcc;
-		/// File descriptor du socket d'écoute
+		/// File descriptor of the listen socket
 		int fdSocket;
-		/// Map des channels
+		/// Map of channels via ptr
 		map<string, Channel*> nomToChannel;
-		/// Liste de client sur le serveur
+		/// List of client connected to the server via ptr
 		list<Client*> clientsServ;
 
-		/// Constructeur privé : designe pattern singleton
+		/// Private constructor (designed pattern singleton)
 		Serveur(string hostname="localhost", unsigned int port=42007,  string nom="Anon", string messAcc="Salut bande de pouilleux");
-		/// init le sockaddr_in pour init le serveur
+		/// Init sockaddr_in which is ready to bind
 		void init_sockaddrin(struct sockaddr_in *name, string hostname, uint16_t port);
+		/// Design pattern singleton : adress of the only Serveur instance
+		static Serveur* _instance ;
+		/// Private method to get the biggest file descriptor opened
 		unsigned int getmaxfd();
 	public:
-		/// Adresse du serveur, instanciation et destruction
-		static Serveur* _instance ;
+		/// Design pattern singleton : return the instance and create it if necessary
 		static Serveur* getInstance();
+		/// Destructor
 		~Serveur();
 
 		/// Getteurs et Setteurs
@@ -52,43 +57,45 @@ class Serveur {
 		int getSocketecoute() const;
 		void setSocketecoute(int fdSocket);
 
-		/// Methodes
-		/// Ajoute un channel
-		unsigned int addchannel(Client* createur, string channelname, string topic);
-		/// Ajoute une personne à la liste des clients d'un channel
-		unsigned int join (Client *cli, string channelname);
-		/// Enleve une personne de la liste des clients d'un channel
-		unsigned int unjoin (Client *cli, string channelName);
-
-		/// Envoi un message à un client ou a un channel
+		/// Methods which correspond to a command
+		/// Send a private message between two clients
 		unsigned int mp(Client* envoyeur, string pseudo, string message);
-		/// who ?
-		unsigned int who(string* msgtosend, string pattern="*") const;
-		/// list
-		unsigned int listerChan(string *msgtosend, string patternChannelName="*") const;
-		///kick
-		unsigned int kickFromChan(string channelName, string patternPseudo, Client* kicker) ;
-		/// Rend operateur un client du channel
-		unsigned int op(string channelName, string Pseudo, Client* opper) ;
-		//msg to channel
+		/// Send a mesage to a channel
 		unsigned int msgToChannel(string channelName, string msg, Client* envoyeur);
-		//who sur un channel (pattern) en arg
+		/// List clients connected to the server, pattern allowed (* will be transformed to .*)
+		unsigned int who(string* msgtosend, string pattern="*") const;
+		/// List users corresponding to the pattern and connected to a channel corresponding to the pattern
 		unsigned int whoChannel(string* msgtosend, string patternChan="*", string patternClient="*") const;
-		//changer le topic d'un channel en arg
+		/// List channels on the server, pattern allowed (* will be transformed to .*)
+		unsigned int listerChan(string *msgtosend, string patternChannelName="*") const;
+		/// Change the topic of a channel
 		unsigned int changerTopic(string channelName, string newTopic, Client *envoyeur, string *reponse);
-		//ban un client ou un pattern d'un channel
+		/// Kick someone from a channel
+		unsigned int kickFromChan(string channelName, string patternPseudo, Client* kicker) ;
+		/// Ban the pseudo of somebody from a channel
 		unsigned int ban(string *reponse, string patternChan, string patternPseudo, Client * envoyeur);
-		//deop un client du channel //modif à faire cf code source deop
+		/// Give the operator rights to someone.
+		unsigned int op(string channelName, string Pseudo, Client* opper) ;
+		/// Remove the operator rights to a client
 		unsigned int deop(string channelName, string pseudo, Client * deopper);
-		//changer de pseudo
+		/// Join a Client to a Channel
+		unsigned int join (Client *cli, string channelname);
+		/// Change the nickname of a client
 		unsigned int nick(string newpseudo, Client *envoyeur);
-		//unban un client ou un pattern d'un channel
+		/// Retire a client from a channel (leave)
+		unsigned int unjoin (Client *cli, string channelName);
+		/// Unban a pseudo from a channel, pattern allowed
 		unsigned int unban(string *reponse, string patternChan, string patternPseudo, Client * envoyeur);
-		//lister les bans d'un channel
+		/// List ban peoples from a channel
 		unsigned int listerBan(string channelName, string * reponse);
-		//message général du serveur aux clients
+
+		/// Methods which does not correspond to a command but are used in one of theses.
+		/// Add a channel to the serveur
+		unsigned int addchannel(Client* createur, string channelname, string topic);
+		/// Send a message to every clients on the server
 		unsigned int broadcastmsg(string message) const;
-		/// Gere le serveur
+
+		/// Launch the serveur (may contain a forever() ;) )
 		int run();
 };
 

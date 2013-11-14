@@ -12,6 +12,6 @@ HEADERS += \
     client.h \
     serveur.h \
     channel.h \
-    err.codes.h
+    codes.h
 
 QMAKE_CXXFLAGS += -std=c++0x

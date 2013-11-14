@@ -192,6 +192,42 @@ unsigned int Channel::virerop(Client* oldop, Client* kicker) {
 	}
 	return eNotExist;
 }
+/*
+ * Description : Supprime un operateur de la liste d'operateur
+ * @oldclient : pointeur sur le client a virer de la liste du channel
+ * @kicker : pointeur sur l'operateur qui vire le client défaut : NULL
+ */
+unsigned int Channel::virerop(string pseudo, Client* kicker) {
+	cout<<"Channel::virerop"<<endl;
+	list<Client*>::iterator it=opChan.begin();
+	list<Client*>::iterator fin=opChan.end();
+	/*code de retour 130 aop : changement de droit
+	Arg: le nick du client qui a changé les droits, le channel sur lequel les
+	droits ont changé, les nouveaux droits
+	Droits (pour le moment un seul, bcp plus sur un vrai irc):
+	o=>op (si pas de o, alors on est pas op)*/
+	while (it != fin) {
+		if ((*it)->getPseudo() == pseudo) {
+			if (kicker != NULL && isop(kicker)) {
+				(*it)->sendRep(aop, kicker->getPseudo()+"\n"+name+"\n");
+				it=opChan.erase(it);
+				return success;
+			}
+			else if (kicker != NULL && isop(kicker) == false) {
+				return eNotAutorized;
+			}
+			else {//kicker is NULL
+				(*it)->sendRep(aop, pseudo+"\n"+name+"\n");
+				it=opChan.erase(it);
+				return success;
+			}
+		}
+		else {
+			++it;
+		}
+	}
+	return eNotExist;
+}
 
 /*
  * Description : return true si un client est dans la liste des operateurs du channel

@@ -48,6 +48,7 @@ class Channel {
 		unsigned int addop(Client* oldop, string newop);
 		/// Virer un client à la listeop
 		unsigned int virerop(Client* oldop, Client* kicker=NULL);
+		unsigned int virerop(string pseudo, Client* kicker=NULL);
 		/// Vérifie si un client est utilisateur
 		bool isop(Client* clitotest);
 		/// Vérifie si un utilisateur est un client du channel
